@@ -301,6 +301,10 @@ button.row:active{background:var(--key-bg)}
 /* ---------- フォーム（DADS インプット） ---------- */
 .fl{display:block;font-size:16px;font-weight:700;line-height:1.5;margin-bottom:16px}
 .fl input,.fl select{display:block;width:100%;margin-top:8px;font:inherit;font-weight:400;font-size:16px;min-height:56px;padding:0 16px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface);color:var(--text)}
+.pricerow{display:flex;gap:8px;align-items:flex-end}
+.pricerow .fl{flex:1;min-width:0}
+.btn.pm{flex:0 0 auto;min-height:56px;width:64px;padding:0;margin-bottom:16px}
+.fl input.neg{color:var(--error);font-weight:700}
 .fl input.big{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
 .fl input[aria-invalid="true"]{border:2px solid var(--error)}
 .err{display:flex;align-items:center;gap:6px;color:var(--error);font-size:16px;font-weight:700;margin:-8px 0 12px}
@@ -456,6 +460,7 @@ const IC={
   up:'<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',
   down:'<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
   pencil:'<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+  diff:'<path d="M12 3v14"/><path d="M5 10h14"/><path d="M5 21h14"/>',
   x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
   ccheck:'<circle cx="12" cy="12" r="10" pathLength="1"/><path d="m16 9-5.5 5.5L8 12" pathLength="1"/>',
   clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
@@ -960,12 +965,15 @@ function payError(msg){
   $('paid').setAttribute('aria-invalid','true');
   e.classList.remove('shake'); void e.offsetWidth; e.classList.add('shake');
 }
+/* iPhone のテンキーにはマイナスがないので、符号を切り替えるボタンを価格欄の横に置く */
+const pmBtn=id=>`<button class="btn btn-line pm" data-a="neg" data-for="${id}" aria-label="プラスとマイナスを切り替える">${ic('diff',22)}</button>`;
+const markNeg=el=>el.classList.toggle('neg',/^\s*[-−]/.test(el.value));
 function openItem(id,cat){
   editId=id||null;
   const it=id?S.items.find(i=>i.id===id):{name:'',price:'',cat:cat||S.cats[0].id};
   showModal(`${sheetHead(id?'品目の編集':'品目の追加')}<div class="mb">
     <label class="fl">品名<input id="iname" value="${esc(it.name)}" maxlength="20"></label>
-    <label class="fl">価格（値引きはマイナス）<input id="iprice" inputmode="numeric" value="${it.price}"></label>
+    <div class="pricerow"><label class="fl">価格（値引きは「＋/−」でマイナスに）<input id="iprice" inputmode="numeric" autocomplete="off" value="${it.price}" class="${+it.price<0?'neg':''}"></label>${pmBtn('iprice')}</div>
     <label class="fl">カテゴリ<select id="icat">${S.cats.map(c=>`<option value="${c.id}" ${c.id===it.cat?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label>
     <label class="ck inline-ck"><input type="checkbox" id="iask" ${it.ask?'checked':''}><span>注文のたびに価格を入力<small>時価の品など。上の価格は入力欄の初期値になります</small></span></label>
     ${id?`<div class="btnrow"><button class="btn btn-line" data-a="icopy">${ic('copy',20)}この品目をコピー</button><button class="btn btn-text" data-a="idel" style="color:var(--error)">${ic('trash',20)}削除</button></div>`:''}</div>
@@ -1274,7 +1282,7 @@ function openPrice(ctx){
   else{const l=t.lines.find(x=>x.key===ctx.key);name=l.name;base=l.base;cur=l.price;qty=l.qty;}
   priceCtx.base=base;
   showModal(`${sheetHead(esc(name))}<div class="mb">
-    <label class="fl">${ctx.mode==='add'?'価格':'1つあたりの価格'+(qty>1?`（${qty}点すべてに適用）`:'')}<input id="pval" class="big" inputmode="numeric" autocomplete="off" value="${cur}"></label>
+    <div class="pricerow"><label class="fl">${ctx.mode==='add'?'価格':'1つあたりの価格'+(qty>1?`（${qty}点すべてに適用）`:'')}<input id="pval" class="big ${cur<0?'neg':''}" inputmode="numeric" autocomplete="off" value="${cur}"></label>${pmBtn('pval')}</div>
     <div class="quick"><button class="btn btn-line" data-a="pp" data-v="0">サービス ¥0</button><button class="btn btn-line" data-a="pp" data-v="half">半額</button><button class="btn btn-line num" data-a="pp" data-v="base">定価 ${yen(base)}</button></div>
     ${ctx.mode==='line'&&qty>1?'<p class="note">1点だけサービスにしたいときは、−で1つ減らしてからもう一度追加し、その行を変更してください。</p>':''}</div>
     <div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button><button class="btn btn-fill" data-a="pok">${ctx.mode==='add'?'追加':'変更'}</button></div>`);
@@ -1380,7 +1388,9 @@ document.addEventListener('click',e=>{
     case 'lprice': openPrice({mode:'line',key:id}); return;
     case 'pp': {const v=b.dataset.v,base=priceCtx.base;
       $('pval').value=v==='base'?base:v==='half'?Math.floor(base/2):v; return;}
-    case 'pok': {const raw=$('pval').value.replace(/[^\d-]/g,''),p=parseInt(raw);
+    case 'neg': {const inp=$(b.dataset.for); if(!inp)return; let v=inp.value.trim();
+      v=/^[-−]/.test(v)?v.replace(/^[-−]+/,''):'-'+v; inp.value=v; markNeg(inp); inp.focus(); return;}
+    case 'pok': {const raw=$('pval').value.replace(/−/g,'-').replace(/[^\d-]/g,''),p=parseInt(raw);
       if(isNaN(p)){toast('価格を数字で入力してください');return;}
       if(priceCtx.mode==='add'){const r=addItem(t,priceCtx.iid,p);if(r)fxLine={key:r.key,kind:r.existed?'bump':'new'};}
       else{const nk=repriceLine(t,priceCtx.key,p);if(nk)fxLine={key:nk,kind:'bump'};}
@@ -1442,7 +1452,7 @@ document.addEventListener('click',e=>{
     case 'txtin': openTextIn(); return;
     case 'txtok': applyText(); return;
     case 'iedit': openItem(id); return;
-    case 'isave': {const name=$('iname').value.trim();const raw=$('iprice').value.replace(/[^\d-]/g,'');const price=parseInt(raw);
+    case 'isave': {const name=$('iname').value.trim();const raw=$('iprice').value.replace(/−/g,'-').replace(/[^\d-]/g,'');const price=parseInt(raw);
       if(!name){toast('品名を入力してください');return;}
       if(isNaN(price)){toast('価格を数字で入力してください');return;}
       const cat=$('icat').value, ask=$('iask').checked;
@@ -1464,7 +1474,7 @@ document.addEventListener('click',e=>{
   }
   render();
 });
-document.addEventListener('input',e=>{if(e.target.id==='paid')updChg();if(e.target.id==='txtin')updTextPrev();});
+document.addEventListener('input',e=>{if(e.target.id==='iprice'||e.target.id==='pval')markNeg(e.target);if(e.target.id==='paid')updChg();if(e.target.id==='txtin')updTextPrev();});
 document.addEventListener('change',e=>{
   const el=e.target;
   if(el.hasAttribute('data-pk')){payKind=el.value;updPay();return;}
