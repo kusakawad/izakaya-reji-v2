@@ -38,6 +38,8 @@ img{max-width:100%}
   --key-bg:#e8f1fe;      /* Blue 50 */
   --key-bg-2:#d9e6ff;    /* Blue 100 */
   --on-key:#ffffff;
+  --badge-bg:#0017c1;   /* タイトル横のアイコン：Blue 900 の地に白 */
+  --badge-fg:#ffffff;
   --success:#197a4b;     /* Green 800 */
   --success-bg:#e6f5ec;  /* Green 50 */
   --error:#ce0000;       /* Red 900 */
@@ -58,12 +60,12 @@ img{max-width:100%}
   --bg:#000000; --surface:#1c1c1c; --text:#f2f2f2; --text-2:#b3b3b3; --border:#7f7f7f; --divider:#333333;
   --key:#9db7f9; --key-hover:#c5d7fb; --key-active:#d9e6ff; --key-bg:#0b1747; --key-bg-2:#13246b; --on-key:#000060;
   --success:#2cac6e; --success-bg:#0c2e1d; --error:#ff7a7a; --error-hover:#ffa3a3; --error-bg:#3a1010;
-  --scrim:rgba(0,0,0,.6); color-scheme:dark}}
+  --scrim:rgba(0,0,0,.6); --badge-bg:#ffffff; --badge-fg:#0017c1; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#000000; --surface:#1c1c1c; --text:#f2f2f2; --text-2:#b3b3b3; --border:#7f7f7f; --divider:#333333;
   --key:#9db7f9; --key-hover:#c5d7fb; --key-active:#d9e6ff; --key-bg:#0b1747; --key-bg-2:#13246b; --on-key:#000060;
   --success:#2cac6e; --success-bg:#0c2e1d; --error:#ff7a7a; --error-hover:#ffa3a3; --error-bg:#3a1010;
-  --scrim:rgba(0,0,0,.6); color-scheme:dark}
+  --scrim:rgba(0,0,0,.6); --badge-bg:#ffffff; --badge-fg:#0017c1; color-scheme:dark}
 
 *,*::before,*::after{box-sizing:border-box}
 html,body{height:100%;margin:0}
@@ -84,7 +86,8 @@ button{font:inherit;color:inherit;letter-spacing:inherit;cursor:pointer;-webkit-
 /* ---------- ナビゲーションバー ---------- */
 .nav{flex:0 0 auto;background:var(--surface);border-bottom:1px solid var(--divider);display:flex;align-items:center;gap:8px;min-height:56px;padding-block:8px}
 .nav.large{min-height:64px;padding-block:12px 8px}
-.ltitle{flex:1;min-width:0;margin:0;font-size:28px;font-weight:700;line-height:1.5;letter-spacing:.01em}
+.ltitle{flex:1;min-width:0;margin:0;display:flex;align-items:center;gap:12px;font-size:28px;font-weight:700;line-height:1.5;letter-spacing:.01em}
+.tbadge{flex:0 0 auto;width:36px;height:36px;border-radius:var(--r-sm);display:grid;place-items:center;background:var(--badge-bg);color:var(--badge-fg)}
 .clock{display:flex;align-items:center;gap:6px;font-size:16px;color:var(--text-2)}
 .navtitle{flex:1;min-width:0;text-align:center;line-height:1.3}
 .navtitle b{display:block;font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -134,7 +137,7 @@ button{font:inherit;color:inherit;letter-spacing:inherit;cursor:pointer;-webkit-
   .btn-danger:hover{background:var(--error-hover);text-decoration:underline;text-underline-offset:3px}
 }
 
-/* ---------- 席一覧 ---------- */
+/* ---------- テーブル一覧 ---------- */
 .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-block:16px 0}
 .summary div{background:var(--surface);border-radius:var(--r-md);padding:12px;min-width:0}
 .summary small{display:block;font-size:14px;color:var(--text-2);line-height:1.3}
@@ -368,7 +371,7 @@ button.row:active{background:var(--key-bg)}
   .nav.large{min-height:72px}
   .ltitle{font-size:32px}
 
-  /* 席：大きな席札 */
+  /* テーブル：大きな札 */
   .summary{grid-template-columns:repeat(3,minmax(0,220px))}
   .tgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
   .tcard{min-height:148px;padding:16px}
@@ -541,7 +544,7 @@ const fmtTime=ts=>{const d=new Date(ts);return `${d.getMonth()+1}/${d.getDate()}
 const nowHM=()=>{const d=new Date();return `${pad(d.getHours())}:${pad(d.getMinutes())}`};
 
 /* ---------- 演出の状態 ---------- */
-const TABS=[['tables','席','grid'],['history','売上','chart'],['settings','設定','settings']];
+const TABS=[['tables','テーブル','grid'],['history','売上','chart'],['settings','設定','settings']];
 let fxLine={key:null,kind:null};
 const roll={};
 let prevCatRect=null, tabJust=null;
@@ -551,10 +554,10 @@ let done=null;   // 会計完了バナー {id, fresh}
 function shell(body,v,enter){
   const label=TABS.find(x=>x[0]===v)[1];
   const head=view.sub&&!isTab?`<header class="nav"><button class="navbtn" data-a="subback" aria-label="設定に戻る">${ic('back',26)}設定</button><div class="navtitle"><b>${SUBS[view.sub]}</b></div><span class="navbtn right" aria-hidden="true" style="visibility:hidden">${ic('back',26)}設定</span></header>`
-    :`<header class="nav large"><h1 class="ltitle">${label}</h1><span class="clock num">${ic('clock',18)}<span id="clock">${nowHM()}</span></span></header>`;
+    :`<header class="nav large"><h1 class="ltitle"><span class="tbadge" aria-hidden="true">${ic(TABS.find(x=>x[0]===v)[2],22)}</span>${label}</h1><span class="clock num">${ic('clock',18)}<span id="clock">${nowHM()}</span></span></header>`;
   if(isTab&&v==='settings'){
     const sub=view.sub||'shop';
-    return `<header class="nav large"><h1 class="ltitle">設定</h1><span class="clock num">${ic('clock',18)}<span id="clock">${nowHM()}</span></span></header>
+    return `<header class="nav large"><h1 class="ltitle"><span class="tbadge" aria-hidden="true">${ic('settings',22)}</span>設定</h1><span class="clock num">${ic('clock',18)}<span id="clock">${nowHM()}</span></span></header>
   <main class="scroll split-host"><div class="ssplit ${enter&&!enter.startsWith('d:')?enter:''}">
     <div class="slist" data-keep="slist">${settingsView(null)}</div>
     <div class="sdetail" data-keep="sdetail"><div class="${enter.startsWith('d:')?enter.slice(2):''}"><h2 class="dtitle">${SUBS[sub]}</h2>${settingsView(sub)}</div></div>
@@ -600,7 +603,7 @@ function orderView(t,enter,catEnter){
     <span class="sp"></span>
     ${t.lines.length?`<button class="btn btn-fill btn-lg" data-a="pay">${ic('banknote',22)}会計</button>`:`<button class="btn btn-line" data-a="vacate">空席に戻す</button>`}</div>`;
   return `<div class="wrap ${enter}">
-  <header class="nav"><button class="navbtn" data-a="back" aria-label="席の一覧に戻る">${ic('back',26)}席</button>
+  <header class="nav"><button class="navbtn" data-a="back" aria-label="テーブルの一覧に戻る">${ic('back',26)}テーブル</button>
     <div class="navtitle"><b>${esc(t.name)}</b><span class="num">${ic('users',14)}${t.guests?t.guests+'名':'人数未設定'}　${ic('clock',14)}${fmtMin(mins(t))}</span></div>
     <button class="navbtn right" data-a="guests">${ic('users',20)}人数</button></header>
   <div class="split"><section class="ticket" aria-label="伝票">
@@ -668,7 +671,7 @@ function settingsView(sub){
       ${srow('percent','消費税',`${esc(tx.mainName)} ${pct(tx.main)}・${esc(tx.subName)} ${pct(tx.sub)}`,'tax')}
     </div>
     <p class="note gnote">店舗情報はレシートと領収書に印字されます。</p>
-    <h2 class="gh">メニューと席</h2>
+    <h2 class="gh">メニューとテーブル</h2>
     <div class="group">
       ${srow('utensils','品目',S.items.length+'品','items')}
       ${srow('tags','カテゴリ',S.cats.length+'件','cats')}
