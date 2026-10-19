@@ -362,8 +362,11 @@ button.row:active{background:var(--key-bg)}
 .btn-void{background:var(--void-bg);color:var(--void-fg);box-shadow:inset 0 0 0 1px var(--void-fg)}
 .btn-void:active{background:var(--void-bg-active)}
 @media (hover:hover){.btn-void:hover{background:var(--void-bg-active);text-decoration:underline;text-underline-offset:3px}}
+/* レシート・領収書・取り消しを1列に（375px幅でも収まるよう余白を詰める） */
+.banner .bbtns{grid-column:1/-1;flex-wrap:nowrap}
+.bbtns,.salebtns{flex-wrap:nowrap!important;gap:8px}
+.bbtns .btn,.salebtns .btn{padding:0 10px;gap:6px;flex:0 0 auto}
 .bbtns .btn-void,.salebtns .btn-void{margin-left:auto}
-.salebtns{flex-wrap:wrap}
 .sale.voided .top .amt{text-decoration:line-through;color:var(--text-2)}
 .sale.voided .top>span:first-child,.sale.voided .det{color:var(--text-2)}
 .vtag{display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:2px 10px;border-radius:999px;font-size:14px;font-weight:700;line-height:1.5;color:var(--void-fg);background:var(--void-bg);box-shadow:inset 0 0 0 1px var(--void-fg)}
@@ -393,6 +396,32 @@ button.row:active{background:var(--key-bg)}
 .sw:checked::before{transform:translateX(20px)}
 .nochg{display:flex;gap:8px;align-items:flex-start;padding:12px;border-radius:var(--r-md);background:var(--key-bg);color:var(--text);font-size:16px;line-height:1.6;margin:12px 0 0}
 .nochg .ic{color:var(--key);margin-top:3px}
+
+/* ---------- 会計シートの折りたたみ ---------- */
+.paysum{display:flex;flex-direction:column;align-items:center;padding:4px 0 8px}
+.paysum>span{font-size:14px;color:var(--text-2);line-height:1.5}
+.paysum .paytot{margin:0}
+.paysum .taxline{margin:0}
+.accs{border-radius:var(--r-md);box-shadow:inset 0 0 0 1px var(--divider);overflow:hidden;margin:8px 0 4px}
+.acc{border-bottom:1px solid var(--divider);background:var(--surface)}
+.acc:last-child{border-bottom:0}
+.acc summary{list-style:none;display:flex;align-items:center;gap:8px;min-height:52px;padding:0 12px 0 16px;cursor:pointer;font-size:16px;font-weight:700}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary:active{background:var(--key-bg)}
+.acct{flex:0 0 auto}
+.accv{flex:1;min-width:0;text-align:right;font-weight:400;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.accc{color:var(--text-2);transition:transform .25s var(--ease)}
+.acc[open] .accc{transform:rotate(90deg)}
+.accb{padding:4px 16px 16px}
+.acc[open] .accb{animation:accIn .3s var(--ease)}
+@keyframes accIn{from{opacity:0;transform:translateY(-6px)}}
+.accb .chips{margin:0}
+.accb .seg{margin:0}
+.accb .bd{margin:0}
+/* 設定：各項目の「入れ方」 */
+.mrow{display:flex;align-items:center;gap:12px;margin:8px 0 4px}
+.mlab{flex:0 0 auto;font-size:14px;font-weight:700;color:var(--text-2)}
+.mrow .seg{flex:1;margin:0}
 
 /* ---------- 設定：割引・サービス料・支払い方法 ---------- */
 .steps{margin:0;padding:0 0 0 1.4em;font-size:16px;line-height:1.7}
@@ -556,10 +585,12 @@ function defaults(){
 }
 function defShop(){return {name:'',addr:'',tel:'',regno:'',footer:'またのご来店をお待ちしております',tadashi:'御飲食代として',logo:'',paper:58};}
 function defTax(){return {main:10,mainName:'店内',sub:8,subName:'持ち帰り',mode:'incMain',round:'floor'};}
-/* 割引：mode=always（すべての会計）／ask（会計時に選ぶ）。pct=％割引、digits=切り捨てる桁数（0は切り捨てない） */
-function defDisc(){return {mode:'ask',pct:0,pctLabel:'割引',digits:0,truncLabel:'端数値引き'};}
+/* 割引：pct=％割引、digits=切り捨てる桁数（0は切り捨てない）、taxOn=消費税相当割引（taxWhen=before 消費税の前／after 後）
+   各項目の …Mode：always（すべての会計）／ask（会計時に選ぶ） */
+function defDisc(){return {pct:0,pctLabel:'割引',pctMode:'ask',digits:0,truncLabel:'端数値引き',truncMode:'ask',
+  taxOn:false,taxLabel:'消費税相当割引',taxWhen:'before',taxMode:'ask'};}
 /* サービス料：pct=％、fixed=固定額、fixedPer=bill（1会計あたり）／guest（1人あたり） */
-function defSvc(){return {mode:'ask',pct:0,pctLabel:'サービス料',fixed:0,fixedLabel:'席料',fixedPer:'bill'};}
+function defSvc(){return {pct:0,pctLabel:'サービス料',pctMode:'ask',fixed:0,fixedLabel:'席料',fixedPer:'bill',fixedMode:'ask'};}
 /* 支払い方法：change=おつりを計算する（お預かりを入力する）。def=初期値の方法 */
 function defPay(){const m=[['現金',true],['クレジットカード',false],['電子マネー',false],['QRコード決済',false]].map(([name,change])=>({id:uid(),name,change}));return {methods:m,def:m[0].id};}
 let S=null;
@@ -578,8 +609,12 @@ function normalize(D){
   D.sales=D.sales||[];
   D.tax=Object.assign(defTax(),D.tax||{});
   D.shop=Object.assign(defShop(),D.shop||{});
-  D.disc=Object.assign(defDisc(),D.disc||{});
-  D.svc=Object.assign(defSvc(),D.svc||{});
+  /* 以前は割引・サービス料ごとに1つだった「入れ方」(mode) を、各項目の入れ方に引き継ぐ */
+  const od=D.disc||{}, ov=D.svc||{};
+  D.disc=Object.assign(defDisc(),od);
+  D.svc=Object.assign(defSvc(),ov);
+  if(od.mode){['pctMode','truncMode','taxMode'].forEach(k=>{if(!od[k])D.disc[k]=od.mode;});delete D.disc.mode;}
+  if(ov.mode){['pctMode','fixedMode'].forEach(k=>{if(!ov[k])D.svc[k]=ov.mode;});delete D.svc.mode;}
   if(!D.pay||!Array.isArray(D.pay.methods)||!D.pay.methods.length) D.pay=defPay();
   D.pay.methods=D.pay.methods.map(m=>({id:m.id||uid(),name:String(m.name||'支払い方法'),change:m.change!==false}));
   if(!D.pay.methods.some(m=>m.id===D.pay.def)) D.pay.def=D.pay.methods[0].id;
@@ -609,17 +644,26 @@ function calcBill(base,kind){
 }
 /* 割引・サービス料を入れた会計の計算。sel は会計時に選んだ項目（null のときは「すべての会計に入れる」項目だけ）
    順番：① ％割引と％サービス料はどちらもメニュー価格の合計にかける（重ねない） ② 固定のサービス料を足す
-         ③ 消費税を計算する ④ 最後に切り捨て割引をかけ、消費税を計算し直す。％で出た1円未満は消費税と同じ端数処理 */
+         ③ 消費税相当割引（消費税の前） ④ 消費税を計算する ⑤ 消費税相当割引（消費税の後）
+         ⑥ 最後に切り捨て割引をかけ、消費税を計算し直す。％で出た1円未満は消費税と同じ端数処理 */
+const itemMode=k=>({dpct:S.disc.pctMode,dtrunc:S.disc.truncMode,dtax:S.disc.taxMode,spct:S.svc.pctMode,sfix:S.svc.fixedMode})[k]||'ask';
 function calcFull(t,kind,sel){
   const sub=total(t), g=t.guests||0, D=S.disc, V=S.svc, adj=[], on={};
-  const use=(grp,k,val)=>(on[k]=val>0&&(grp.mode==='always'||!!(sel&&sel[k])));
+  const use=(grp,k,val)=>(on[k]=val>0&&(itemMode(k)==='always'||!!(sel&&sel[k])));
   let base=sub;
   if(use(D,'dpct',D.pct)){const a=-rnd(sub*D.pct/100); if(a){adj.push({k:'dpct',label:D.pctLabel||'割引',note:pct(D.pct),amt:a}); base+=a;}}
   if(use(V,'spct',V.pct)){const a=rnd(sub*V.pct/100); if(a){adj.push({k:'spct',label:V.pctLabel||'サービス料',note:pct(V.pct),amt:a}); base+=a;}}
   if(use(V,'sfix',V.fixed)){const per=V.fixedPer==='guest', a=per?V.fixed*g:V.fixed;
     if(a){adj.push({k:'sfix',label:V.fixedLabel||'席料',note:per?`${yen(V.fixed)}×${g}名`:'',amt:a}); base+=a;}}
+  const taxOn=use(D,'dtax',D.taxOn?1:0);
+  /* 消費税相当割引（消費税の前）：ここまでの額にかかる消費税と同じ額を、消費税を計算する前に引く */
+  if(taxOn&&D.taxWhen!=='after'){const t0=calcBill(base,kind).tax;
+    if(t0){adj.push({k:'dtax',label:D.taxLabel||'消費税相当割引',note:'消費税の前',amt:-t0}); base-=t0;}}
   const b=calcBill(base,kind);
   let tot=b.total, tax=b.tax;
+  /* 消費税相当割引（消費税の後）：税込額からその消費税額を引き、消費税を計算し直す */
+  if(taxOn&&D.taxWhen==='after'&&tax){const a=-tax;
+    adj.push({k:'dtax',label:D.taxLabel||'消費税相当割引',note:'消費税の後',amt:a,after:true}); tot+=a; tax=rnd(tot*b.rate/(100+b.rate));}
   if(use(D,'dtrunc',D.digits)&&tot>0){const u=10**D.digits, t2=Math.floor(tot/u)*u, a=t2-tot;
     if(a){adj.push({k:'dtrunc',label:D.truncLabel||'端数値引き',note:`${yen(u)}未満切り捨て`,amt:a,after:true}); tot=t2; tax=rnd(tot*b.rate/(100+b.rate));}}
   return {...b, sub, pre:b.total, total:tot, tax, adj, on};
@@ -670,7 +714,8 @@ function doneBanner(){
       <div class="meta num">合計 ${yen(x.total)}　No.${saleNo(x)}</div>`
       :`<div class="chg">おつり <b class="num" id="donechg">${yen(x.change)}</b></div>
       <div class="meta num">合計 ${yen(x.total)}　お預かり ${yen(x.paid)}${x.payMethod?'　'+esc(x.payMethod):''}　No.${saleNo(x)}</div>`}
-      <div class="bbtns"><button class="btn btn-line btn-sm" data-a="rcpt" data-id="${x.id}">${ic('receipt',18)}レシート</button><button class="btn btn-line btn-sm" data-a="ryo" data-id="${x.id}">${ic('file',18)}領収書</button><button class="btn btn-void btn-sm" data-a="void" data-id="${x.id}">${ic('ban',18)}会計取り消し</button></div></div>
+      </div>
+      <div class="bbtns"><button class="btn btn-line btn-sm" data-a="rcpt" data-id="${x.id}">${ic('receipt',18)}レシート</button><button class="btn btn-line btn-sm" data-a="ryo" data-id="${x.id}">${ic('file',18)}領収書</button><button class="btn btn-void btn-sm" data-a="void" data-id="${x.id}">${ic('ban',18)}取り消し</button></div>
   </section></div>`;
 }
 function tablesView(enter){
@@ -746,45 +791,50 @@ function historyView(enter){
     <div class="group">${all.length?all.slice().reverse().map(x=>`<div class="sale ${x.voided?'voided':''}"><div class="top"><span class="num">${fmtTime(x.end)}　${esc(x.table)}${x.guests?' '+x.guests+'名':''}</span><span class="num amt">${yen(x.total)}</span></div>
       ${x.voided?`<span class="vtag">${ic('ban',16)}取り消し ${fmtTime(x.voidedAt)}</span>`:''}
       <div class="det num">No.${saleNo(x)}<br>${x.lines.map(l=>esc(l.name)+'×'+l.qty).join('、')}<br>${(x.adj||[]).length?x.adj.map(a=>`${esc(a.label)} ${a.amt>0?'+':''}${yen(a.amt)}`).join('・')+'<br>':''}${x.taxRate!=null?`${esc(x.taxName)} ${pct(x.taxRate)}（消費税 ${yen(x.tax)}）<br>`:''}${x.payMethod?`${esc(x.payMethod)}　`:''}${x.payChange===false?'':`預かり ${yen(x.paid)}／おつり ${yen(x.change)}　`}滞在 ${fmtMin(Math.floor((x.end-x.start)/60000))}</div>
-      ${x.voided?'':`<div class="salebtns"><button class="btn btn-line btn-sm" data-a="rcpt" data-id="${x.id}">${ic('receipt',18)}レシート</button><button class="btn btn-line btn-sm" data-a="ryo" data-id="${x.id}">${ic('file',18)}領収書</button><button class="btn btn-void btn-sm" data-a="void" data-id="${x.id}">${ic('ban',18)}会計取り消し</button></div>`}</div>`).join('')
+      ${x.voided?'':`<div class="salebtns"><button class="btn btn-line btn-sm" data-a="rcpt" data-id="${x.id}">${ic('receipt',18)}レシート</button><button class="btn btn-line btn-sm" data-a="ryo" data-id="${x.id}">${ic('file',18)}領収書</button><button class="btn btn-void btn-sm" data-a="void" data-id="${x.id}">${ic('ban',18)}取り消し</button></div>`}</div>`).join('')
       :'<div class="empty">まだ会計がありません。</div>'}</div>
     </section></div>
   </div>`;
 }
 const payDef=()=>S.pay.methods.find(m=>m.id===S.pay.def)||S.pay.methods[0];
-function discSummary(){const D=S.disc,a=[];if(D.pct>0)a.push(pct(D.pct));if(D.digits>0)a.push(`${yen(10**D.digits)}未満切り捨て`);return a.length?a.join('・'):'なし';}
+function discSummary(){const D=S.disc,a=[];if(D.pct>0)a.push(pct(D.pct));if(D.taxOn)a.push('消費税相当');if(D.digits>0)a.push(`${yen(10**D.digits)}未満切り捨て`);return a.length?a.join('・'):'なし';}
 function svcSummary(){const V=S.svc,a=[];if(V.pct>0)a.push(pct(V.pct));if(V.fixed>0)a.push(`${esc(V.fixedLabel)} ${yen(V.fixed)}${V.fixedPer==='guest'?'/人':''}`);return a.length?a.join('・'):'なし';}
 /* 内訳の行（会計シートと設定の計算例で共通）。inter=true のとき「会計時に選ぶ」項目にスイッチを付ける */
 function bdRows(b,t,inter){
   const D=S.disc,V=S.svc,out=[];
   const amtOf=k=>b.on[k]?((b.adj.find(a=>a.k===k)||{}).amt||0):null;
-  const R=(label,note,amt,k,grp)=>{
-    const ask=inter&&k&&grp.mode!=='always';
-    const sw=ask?`<input type="checkbox" class="sw" data-psel="${k}" ${paySel[k]?'checked':''}>`:'';
-    const always=inter&&k&&grp.mode==='always'?'<small class="always">すべての会計に適用</small>':'';
+  const R=(label,note,amt,k)=>{
+    const ask=inter&&k&&itemMode(k)!=='always';
+    const sw=ask?`<input type="checkbox" class="sw" data-psel="${k}" ${paySel[k]?'checked':''} aria-label="${esc(label)}を入れる">`:'';
+    const always=inter&&k&&itemMode(k)==='always'?'<small class="always">すべての会計に適用</small>':'';
     const off=amt==null;
     return `<div class="bdr ${off?'off':''}"><label class="bdl">${sw}<span>${esc(label)}${note?`<small>${esc(note)}</small>`:''}${always}</span></label><b class="num">${off?'—':(k&&amt>0?'+':'')+yen(amt)}</b></div>`;
   };
   out.push(R(b.mode==='excl'?'小計（税抜）':'小計',`${count(t)}点`,b.sub));
-  if(D.pct>0) out.push(R(D.pctLabel||'割引',`${pct(D.pct)}（メニュー計にかかる）`,amtOf('dpct'),'dpct',D));
-  if(V.pct>0) out.push(R(V.pctLabel||'サービス料',`${pct(V.pct)}（メニュー計にかかる）`,amtOf('spct'),'spct',V));
+  if(D.pct>0) out.push(R(D.pctLabel||'割引',`${pct(D.pct)}（メニュー計にかかる）`,amtOf('dpct'),'dpct'));
+  if(V.pct>0) out.push(R(V.pctLabel||'サービス料',`${pct(V.pct)}（メニュー計にかかる）`,amtOf('spct'),'spct'));
   if(V.fixed>0){const per=V.fixedPer==='guest';
-    out.push(R(V.fixedLabel||'席料',per?`${yen(V.fixed)}×${t.guests||0}名${t.guests?'':'（人数が未設定のため¥0）'}`:'1会計あたり',amtOf('sfix'),'sfix',V));}
+    out.push(R(V.fixedLabel||'席料',per?`${yen(V.fixed)}×${t.guests||0}名${t.guests?'':'（人数が未設定のため¥0）'}`:'1会計あたり',amtOf('sfix'),'sfix'));}
+  const taxRow=()=>out.push(R(D.taxLabel||'消費税相当割引',D.taxWhen==='after'?'消費税の後に、その消費税と同じ額を引く':'消費税の前に、消費税と同じ額を引く',amtOf('dtax'),'dtax'));
+  if(D.taxOn&&D.taxWhen!=='after') taxRow();
   if(b.pre!==b.base) out.push(R(b.mode==='excl'?`消費税（${pct(b.rate)}）`:`${b.name}（${pct(b.rate)}）適用`,'',b.pre-b.base));
-  if(D.digits>0) out.push(R(D.truncLabel||'端数値引き',`${yen(10**D.digits)}未満を切り捨て（最後にかかる）`,amtOf('dtrunc'),'dtrunc',D));
+  if(D.taxOn&&D.taxWhen==='after') taxRow();
+  if(D.digits>0) out.push(R(D.truncLabel||'端数値引き',`${yen(10**D.digits)}未満を切り捨て（最後にかかる）`,amtOf('dtrunc'),'dtrunc'));
   return out;
 }
 /* 設定画面の「計算の順番」と、今の設定で計算した例 */
 function calcGuide(){
   const fake={lines:[{price:3280,qty:1}],guests:2};
-  const b=calcFull(fake,'main',{dpct:true,dtrunc:true,spct:true,sfix:true});
+  const b=calcFull(fake,'main',{dpct:true,dtrunc:true,dtax:true,spct:true,sfix:true});
   const roundName={floor:'切り捨て',round:'四捨五入',ceil:'切り上げ'}[S.tax.round]||'切り捨て';
   return `<h3>計算の順番</h3>
     <div class="example">
     <ol class="steps">
       <li>割引の％とサービス料の％は、どちらもメニュー価格の合計にかけます（重ねてかけません）</li>
       <li>固定のサービス料を足します</li>
+      <li>消費税相当割引（「消費税の前」のとき）：ここまでの額にかかる消費税と同じ額を引きます</li>
       <li>消費税を計算します</li>
+      <li>消費税相当割引（「消費税の後」のとき）：税込額からその消費税と同じ額を引き、消費税を計算し直します</li>
       <li>最後に切り捨て割引で合計の下の桁を切り捨て、消費税を計算し直します</li>
     </ol>
     <p class="note">％で出た1円未満の端数は、消費税の設定と同じく${roundName}にします。</p></div>
@@ -824,33 +874,45 @@ function settingsView(sub){
   </div>`;
   }
   const radio=(name,v,label,sub)=>`<label class="ck"><input type="radio" name="${name}" value="${v}" data-tax="${name}" ${tx[name]===v?'checked':''}><span>${label}${sub?`<small>${sub}</small>`:''}</span></label>`;
-  const modeRadios=(grp,key,what)=>`<div class="group">
-      <label class="ck"><input type="radio" name="${key}mode" value="always" data-${key}="mode" ${grp.mode==='always'?'checked':''}><span>すべての会計に${what}を入れる<small>会計シートで外すことはできません。注文画面の合計にも最初から入ります</small></span></label>
-      <label class="ck"><input type="radio" name="${key}mode" value="ask" data-${key}="mode" ${grp.mode!=='always'?'checked':''}><span>会計時に${what}を選ぶ<small>会計シートのスイッチをオンにした会計だけに入ります</small></span></label></div>`;
+  /* 各項目の末尾に置く「入れ方」の切り替え */
+  const modeSeg=(grp,key,field)=>`<div class="mrow"><span class="mlab">入れ方</span>
+      <div class="seg" role="radiogroup" aria-label="入れ方">${[['always','すべての会計'],['ask','会計時に選ぶ']].map(([v,l])=>`<label><input type="radio" name="${key}-${field}" value="${v}" data-${key}="${field}" ${(grp[field]||'ask')===v?'checked':''}><span>${l}</span></label>`).join('')}</div></div>`;
+  const modeNote='<p class="note">すべての会計：自動で入り、注文画面の合計にも反映します。会計時に選ぶ：会計シートのスイッチをオンにした会計だけに入ります。</p>';
   if(sub==='disc'){const D=S.disc; return `<div class="sec">
-    <h3>割引の入れ方</h3>
-    ${modeRadios(D,'disc','割引')}
+    ${modeNote}
     <h3>① パーセント割引</h3>
     <div class="taxgrid">
       <label class="fl">割合（%）<input id="disc-pct" data-disc="pct" inputmode="decimal" value="${D.pct}"></label>
       <label class="fl">レシートの表記<input id="disc-pctLabel" data-disc="pctLabel" value="${esc(D.pctLabel)}" maxlength="12" placeholder="例：会員割引"></label>
     </div>
     <p class="note">0%にするとオフになります。メニュー価格の合計に対して割り引きます。</p>
+    ${modeSeg(D,'disc','pctMode')}
     <h3>② 切り捨て割引</h3>
     <label class="fl">切り捨てる桁数<select id="disc-digits" data-disc="digits">${[0,1,2,3,4,5].map(n=>`<option value="${n}" ${+D.digits===n?'selected':''}>${n}${n?`（${yen(10**n)}未満を切り捨て）`:'（切り捨てない）'}</option>`).join('')}</select></label>
     <label class="fl">レシートの表記<input id="disc-truncLabel" data-disc="truncLabel" value="${esc(D.truncLabel)}" maxlength="12" placeholder="例：端数値引き"></label>
     <p class="note">会計の最後に、合計金額の下の桁を切り捨てます。例：桁数2で ¥3,880 → ¥3,800</p>
+    ${modeSeg(D,'disc','truncMode')}
+    <h3>③ 消費税相当割引</h3>
+    <div class="group"><label class="ck"><input type="checkbox" id="disc-taxOn" data-disc="taxOn" ${D.taxOn?'checked':''}><span>消費税相当割引を使う<small>消費税と同じ額を割り引きます</small></span></label></div>
+    <label class="fl" style="margin-top:12px">レシートの表記<input id="disc-taxLabel" data-disc="taxLabel" value="${esc(D.taxLabel)}" maxlength="12" placeholder="例：消費税相当割引"></label>
+    <div class="mrow"><span class="mlab">割り引く時点</span>
+      <div class="seg" role="radiogroup" aria-label="割り引く時点">${[['before','消費税の前'],['after','消費税の後']].map(([v,l])=>`<label><input type="radio" name="disc-taxWhen" value="${v}" data-disc="taxWhen" ${(D.taxWhen||'before')===v?'checked':''}><span>${l}</span></label>`).join('')}</div></div>
+    <div class="tblw"><table class="tbl"><thead><tr><th>メニューの価格</th><th class="r">消費税の前</th><th class="r">消費税の後</th></tr></thead><tbody>
+      <tr><td>税込 ¥1,100</td><td class="r">¥1,000</td><td class="r">¥1,000</td></tr>
+      <tr><td>税抜 ¥1,000</td><td class="r">¥990</td><td class="r">¥1,000</td></tr></tbody></table></div>
+    <p class="note">税率10%の例です。税込で価格を設定しているときは、どちらも同じ金額になります。税抜で設定しているときだけ差が出ます。どちらの場合もレシートには割引後の金額にかかる消費税を印字します。「消費税なし」のような表示は誤解のもとになるので避けてください。</p>
+    ${modeSeg(D,'disc','taxMode')}
     ${calcGuide()}
   </div>`;}
   if(sub==='svc'){const V=S.svc; return `<div class="sec">
-    <h3>サービス料の入れ方</h3>
-    ${modeRadios(V,'svc','サービス料')}
+    ${modeNote}
     <h3>① パーセントのサービス料</h3>
     <div class="taxgrid">
       <label class="fl">割合（%）<input id="svc-pct" data-svc="pct" inputmode="decimal" value="${V.pct}"></label>
       <label class="fl">レシートの表記<input id="svc-pctLabel" data-svc="pctLabel" value="${esc(V.pctLabel)}" maxlength="12" placeholder="例：サービス料"></label>
     </div>
     <p class="note">0%にするとオフになります。メニュー価格の合計に対してかかります。</p>
+    ${modeSeg(V,'svc','pctMode')}
     <h3>② 固定のサービス料</h3>
     <div class="taxgrid">
       <label class="fl">金額（円）<input id="svc-fixed" data-svc="fixed" inputmode="numeric" value="${V.fixed}"></label>
@@ -858,6 +920,7 @@ function settingsView(sub){
     </div>
     <div class="seg" role="radiogroup" aria-label="固定のサービス料のかけ方">${[['bill','1会計あたり'],['guest','1人あたり']].map(([v,l])=>`<label><input type="radio" name="fper" value="${v}" data-svc="fixedPer" ${V.fixedPer===v?'checked':''}><span>${l}</span></label>`).join('')}</div>
     <p class="note">0円にするとオフになります。メニューと同じく、消費税の設定（${modeLabel(S.tax.mode)}）の金額として扱います。1人あたりは「金額×人数」で、テーブルの人数を使います。</p>
+    ${modeSeg(V,'svc','fixedMode')}
     ${calcGuide()}
   </div>`;}
   if(sub==='pay') return `<div class="sec">
@@ -1114,13 +1177,17 @@ const payBill=()=>calcFull(curT(),payKind,paySel);
 function openPay(){
   const t=curT(); payKind='main'; payShown=null;
   paySel={dpct:false,dtrunc:false,spct:false,sfix:false}; payMethod=payDef().id;
+  const D=S.disc,V=S.svc;
+  const feats=[['dpct',D.pct>0],['dtrunc',D.digits>0],['dtax',!!D.taxOn],['spct',V.pct>0],['sfix',V.fixed>0]].filter(f=>f[1]).map(f=>f[0]);
+  const askOpen=feats.some(k=>itemMode(k)!=='always');
+  const acc=(id,title,body,open)=>`<details class="acc" id="acc-${id}" ${open?'open':''}><summary><span class="acct">${title}</span><span class="accv num" id="accv-${id}"></span>${ic('chev',20,'accc')}</summary><div class="accb">${body}</div></details>`;
   showModal(`${sheetHead('お会計　'+esc(t.name))}<div class="mb">
-    <div class="mlabel">支払い方法</div>
-    <div class="chips" role="radiogroup" aria-label="支払い方法">${S.pay.methods.map(m=>`<label><input type="radio" name="pm" value="${m.id}" data-pm ${m.id===payMethod?'checked':''}><span>${esc(m.name)}</span></label>`).join('')}</div>
-    <div class="seg" role="radiogroup" aria-label="税率">${['main','sub'].map(k=>`<label><input type="radio" name="pk" value="${k}" data-pk ${k==='main'?'checked':''}><span>${esc(rateName(k))} ${pct(k==='sub'?S.tax.sub:S.tax.main)}</span></label>`).join('')}</div>
-    <div id="pbd"></div>
-    <div class="paytot num" id="ptot" aria-live="polite"></div>
-    <div class="taxline num" id="ptax"></div>
+    <div class="paysum"><span>合計</span><div class="paytot num" id="ptot" aria-live="polite"></div><div class="taxline num" id="ptax"></div></div>
+    <div class="accs">
+    ${S.pay.methods.length>1?acc('pm','支払い方法',`<div class="chips" role="radiogroup" aria-label="支払い方法">${S.pay.methods.map(m=>`<label><input type="radio" name="pm" value="${m.id}" data-pm ${m.id===payMethod?'checked':''}><span>${esc(m.name)}</span></label>`).join('')}</div>`,false):''}
+    ${acc('tax','税率',`<div class="seg" role="radiogroup" aria-label="税率">${['main','sub'].map(k=>`<label><input type="radio" name="pk" value="${k}" data-pk ${k==='main'?'checked':''}><span>${esc(rateName(k))} ${pct(k==='sub'?S.tax.sub:S.tax.main)}</span></label>`).join('')}</div>`,false)}
+    ${feats.length?acc('adj','割引・サービス料','<div id="pbd"></div>',askOpen):''}
+    </div>
     <div id="nochg" class="nochg" hidden></div>
     <div id="cashbox">
     <label class="fl">お預かり<input id="paid" class="big" inputmode="numeric" autocomplete="off" placeholder="0" aria-describedby="payerr"></label>
@@ -1132,12 +1199,15 @@ function openPay(){
   updPay();
 }
 function updPay(){
-  const t=curT(), b=payBill(), rows=bdRows(b,t,true), m=curMethod();
-  const anyFeat=S.disc.pct>0||S.disc.digits>0||S.svc.pct>0||S.svc.fixed>0;
-  $('pbd').innerHTML=rows.length>1?`<div class="bd">${rows.join('')}</div>`+(anyFeat?`<p class="note bdnote">${ic('info',16)}<span>％はメニュー計にかかり、切り捨ては最後にかかります。くわしくは 設定 › 割引・サービス料</span></p>`:''):'';
+  const t=curT(), b=payBill(), rows=bdRows(b,t,true), m=curMethod(), pbd=$('pbd');
+  if(pbd) pbd.innerHTML=`<div class="bd">${rows.join('')}</div><p class="note bdnote">${ic('info',16)}<span>％はメニュー計にかかり、切り捨ては最後にかかります。くわしくは 設定 › 割引・サービス料</span></p>`;
+  const setV=(id,v)=>{const e=$('accv-'+id);if(e)e.textContent=v;};
+  setV('pm',m.name); setV('tax',`${b.name} ${pct(b.rate)}`);
+  const adjSum=b.adj.reduce((a,x)=>a+x.amt,0);
+  setV('adj',b.adj.length?`${b.adj.length}件 ${adjSum>0?'+':''}${yen(adjSum)}`:'なし');
   if(payShown==null)$('ptot').textContent=yen(b.total); else if(payShown!==b.total)countTo($('ptot'),payShown,b.total,yen,380);
   payShown=b.total;
-  $('ptax').textContent=`内消費税 ${yen(b.tax)}（${pct(b.rate)}）`+(rows.length>1?'':(b.total!==b.sub?`　メニュー価格計 ${yen(b.sub)}・${modeLabel(b.mode)}`:''));
+  $('ptax').textContent=`内消費税 ${yen(b.tax)}（${pct(b.rate)}）`+(b.total!==b.sub?`　メニュー価格計 ${yen(b.sub)}`:'');
   $('cashbox').hidden=!m.change; $('nochg').hidden=m.change;
   if(!m.change){$('nochg').innerHTML=ic('info',20)+'<span></span>';$('nochg').lastChild.textContent=`${m.name}はおつりを計算しません。合計額 ${yen(b.total)} で記録します。`;}
   updChg();
@@ -1502,7 +1572,7 @@ const fullTime=ts=>{const d=new Date(ts);return `${d.getFullYear()}/${pad(d.getM
 const stamp=()=>{const d=new Date();return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;};
 function detailCSV(){
   const rows=[['会計No','会計日時','テーブル','人数','入店時刻','品名','単価','定価','数量','小計','備考','価格の扱い','税区分','税率(%)','メニュー価格計','消費税','会計合計(税込)','お預かり','おつり',
-    '支払方法','割引(%)','サービス料(%)','サービス料(固定)','切り捨て割引','状態','取消日時']];
+    '支払方法','割引(%)','サービス料(%)','サービス料(固定)','消費税相当割引','切り捨て割引','状態','取消日時']];
   const adjAmt=(x,k)=>{const a=(x.adj||[]).find(a=>a.k===k);return a?a.amt:'';};
   const ml=m=>m==='excl'?'税抜':m==='incSub'?'サブ税率込':m==='incMain'?'標準税率込':'';
   S.sales.forEach((x,i)=>x.lines.forEach((l,j)=>{
@@ -1510,7 +1580,7 @@ function detailCSV(){
     rows.push([i+1,fullTime(x.end),x.table,x.guests||'',fullTime(x.start),l.name,l.price,base,l.qty,l.price*l.qty,note,
       f?ml(x.priceMode):'',f?(x.taxName||''):'',f?(x.taxRate??''):'',f?(x.sub??x.base??x.total):'',f?(x.tax??''):'',
       f?x.total:'',f?(x.payChange===false?'':x.paid):'',f?(x.payChange===false?'':x.change):'',
-      f?(x.payMethod||''):'',f?adjAmt(x,'dpct'):'',f?adjAmt(x,'spct'):'',f?adjAmt(x,'sfix'):'',f?adjAmt(x,'dtrunc'):'',
+      f?(x.payMethod||''):'',f?adjAmt(x,'dpct'):'',f?adjAmt(x,'spct'):'',f?adjAmt(x,'sfix'):'',f?adjAmt(x,'dtax'):'',f?adjAmt(x,'dtrunc'):'',
       x.voided?'取消':'有効',x.voided?fullTime(x.voidedAt):'']);
   }));
   return csvJoin(rows);
@@ -1523,7 +1593,7 @@ function itemCSV(){
   const sum=live.reduce((s,x)=>s+x.total,0), g=live.reduce((s,x)=>s+(x.guests||0),0);
   const adjSum=k=>live.reduce((s,x)=>s+((x.adj||[]).filter(a=>a.k===k).reduce((t,a)=>t+a.amt,0)),0);
   rows.push([],['売上合計(税込)','','',sum],['会計数','','',live.length],['客数','','',g],
-    ['割引(%)合計','','',adjSum('dpct')],['切り捨て割引合計','','',adjSum('dtrunc')],['サービス料(%)合計','','',adjSum('spct')],['サービス料(固定)合計','','',adjSum('sfix')],
+    ['割引(%)合計','','',adjSum('dpct')],['消費税相当割引合計','','',adjSum('dtax')],['切り捨て割引合計','','',adjSum('dtrunc')],['サービス料(%)合計','','',adjSum('spct')],['サービス料(固定)合計','','',adjSum('sfix')],
     ['取り消し(集計外)',vd.length+'件','',vd.reduce((s,x)=>s+x.total,0)],[]);
   const pm={};live.forEach(x=>{const k=x.payMethod||'記録なし';const a=pm[k]=pm[k]||{n:0,t:0};a.n++;a.t+=x.total;});
   rows.push(['支払方法','件数','','税込合計']);Object.entries(pm).forEach(([k,a])=>rows.push([k,a.n,'',a.t]));rows.push([]);
@@ -1720,7 +1790,8 @@ document.addEventListener('change',e=>{
       if(v<0||v>100){toast('割合は0〜100の数字で入力してください');el.value=o[k];return;}}
     else if(k==='fixed'){v=parseInt(z2h(v).replace(/[^\d]/g,''))||0;}
     else if(k==='digits'){v=Math.max(0,Math.min(5,+v||0));}
-    else if(k==='mode'||k==='fixedPer'){/* ラジオの値をそのまま使う */}
+    else if(k==='taxOn'){v=el.checked;}
+    else if(/Mode$/.test(k)||k==='fixedPer'||k==='taxWhen'){/* ラジオの値をそのまま使う */}
     else {v=v.trim(); if(!v){el.value=o[k];toast('レシートの表記を入力してください');return;}}
     o[k]=v; save(); render(); toast('保存しました'); return;
   }
