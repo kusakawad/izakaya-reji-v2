@@ -1,7 +1,7 @@
 // 居酒屋レジ v2 オフライン用。アプリを更新したら VERSION を上げる
 // 注意：本番版（/izakaya-reji/）と同じ kusakawad.github.io 上で動くのでキャッシュ置き場を共有する。
 // 本番版は「izakaya-reji-」で始まるキャッシュを消すため、こちらは別の接頭辞を使い、自分の分だけを消す。
-const VERSION = 'v3';
+const VERSION = 'v4';
 const PREFIX = 'akari-reji-v2-';
 const CACHE = PREFIX + VERSION;
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
