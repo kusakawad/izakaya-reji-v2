@@ -521,6 +521,10 @@ button.row:active{background:var(--key-bg)}
 .dot.off{background:var(--border)}
 .codebox{width:100%;min-height:88px;font:14px/1.5 ui-monospace,Menlo,monospace;padding:8px 12px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface);color:var(--text);word-break:break-all}
 details.alt{margin-top:8px}
+.loading{display:grid;justify-items:center;gap:16px;padding:32px 16px 24px;text-align:center}
+.loading p{margin:0;font-size:16px;line-height:1.7;color:var(--text-2)}
+.spinner{width:44px;height:44px;border-radius:50%;border:4px solid var(--key-bg-2);border-top-color:var(--key);animation:spin .9s linear infinite!important}
+@keyframes spin{to{transform:rotate(360deg)}}
 details.alt summary{min-height:44px;display:flex;align-items:center;color:var(--key);font-weight:700;cursor:pointer}
 .synchip{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;line-height:1;padding:6px 10px;border-radius:999px;background:var(--key-bg);color:var(--key);white-space:nowrap}
 .synchip.off{background:var(--error-bg);color:var(--error)}
@@ -1906,6 +1910,14 @@ async function openScan(title,lead,cb){
   tick();
 }
 function stopScan(){cancelAnimationFrame(scanRAF);if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}}
+const loadingSheet=(t,m)=>showModal(`${sheetHead(t)}<div class="mb" id="sywait"><div class="loading" role="status"><span class="spinner" aria-hidden="true"></span><p>${m}</p></div></div><div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button></div>`);
+/* WebRTC が使えない・接続先のアドレスが取れないときの説明 */
+function rtcErr(e){
+  if(typeof RTCPeerConnection==='undefined')return 'この画面では端末どうしの通信（WebRTC）が使えません。ホーム画面に追加したアプリ（本番の URL）でお試しください。';
+  if(e&&e.message==='nocand')return '接続に使うこの端末のアドレスを取得できませんでした。Wi-Fi につながっているか確かめてください。テスト版のページでは通信が制限されている場合があります。';
+  return '接続の準備ができませんでした。もう一度お試しください。'+(e&&(e.name||e.message)?`（${esc(e.name||e.message)}）`:'');
+}
+const hasCand=sdp=>/\r?\na=candidate:/.test(sdp);
 const syncErr=(t,m)=>showModal(`${sheetHead(t)}<div class="mb"><p class="note warn">${ic('alert',20)}<span>${m}</span></p></div><div class="mbtns"><button class="btn btn-fill" data-a="mclose">閉じる</button></div>`);
 const unpackErr=e=>e&&e.message==='old'?'この端末のブラウザが古いため読み取れません。iOS（iPadOS）を最新にしてください。':'接続用のQRコードではないようです。';
 
@@ -1913,8 +1925,12 @@ const unpackErr=e=>e&&e.message==='old'?'この端末のブラウザが古いた
 async function hostAdd(){
   if(SY.role==='sub'){toast('サブとして使っている間はホストにできません');return;}
   syncDropPending();
-  const p={id:uid(),name:'',ok:false,ck:{},rx:0,ack:0,pc:new RTCPeerConnection(RTC_CFG)};
-  p.dc=p.pc.createDataChannel('reji',{ordered:true});
+  loadingSheet('サブ端末を追加','接続用のQRコードを用意しています…');
+  let p;
+  try{
+    p={id:uid(),name:'',ok:false,ck:{},rx:0,ack:0,pc:new RTCPeerConnection(RTC_CFG)};
+    p.dc=p.pc.createDataChannel('reji',{ordered:true});
+  }catch(e){syncErr('サブ端末を追加',rtcErr(e));return;}
   p.dc.onopen=()=>{
     p.ok=true; p.rx=Date.now(); if(SY.pending===p)SY.pending=null;
     if(!SY.peers.includes(p))SY.peers.push(p);
@@ -1927,10 +1943,13 @@ async function hostAdd(){
   p.dc.onclose=()=>dropPeer(p);
   p.pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(p.pc.connectionState))dropPeer(p);};
   SY.pending=p;
-  showModal(`${sheetHead('サブ端末を追加')}<div class="mb"><p class="note" role="status">接続の準備をしています…</p></div><div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button></div>`);
-  try{await p.pc.setLocalDescription(await p.pc.createOffer()); await waitIce(p.pc);}catch(e){syncErr('サブ端末を追加','接続の準備ができませんでした。もう一度お試しください。');return;}
-  if(SY.pending!==p)return;
-  const code=await packSdp('o',p.pc.localDescription.sdp);
+  let code='';
+  try{
+    await p.pc.setLocalDescription(await p.pc.createOffer()); await waitIce(p.pc);
+    if(SY.pending!==p)return;
+    if(!hasCand(p.pc.localDescription.sdp))throw new Error('nocand');
+    code=await packSdp('o',p.pc.localDescription.sdp);
+  }catch(e){if(SY.pending===p){SY.pending=null;try{p.pc.close()}catch(_){}syncErr('サブ端末を追加',rtcErr(e));}return;}
   if(SY.pending!==p)return;
   SY.pending=p;
   $('mbox').innerHTML=`${sheetHead('サブ端末を追加')}<div class="mb">
@@ -1945,7 +1964,7 @@ function hostScanAnswer(){
     let u=null; try{u=await unpackSdp(txt)}catch(e){syncErr('読み取れませんでした',unpackErr(e));try{p.pc.close()}catch(_){}return;}
     if(!u||u.kind!=='a'){syncErr('読み取れませんでした',u?'これはホスト側のQRです。サブ端末に出たQRを読み取ってください。':unpackErr());try{p.pc.close()}catch(_){}return;}
     SY.pending=p;
-    showModal(`${sheetHead('接続しています')}<div class="mb" id="sywait"><p class="note" role="status">サブ端末と接続しています。数秒たってもつながらないときは、同じ Wi-Fi につながっているか確かめてください。</p></div><div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button></div>`);
+    loadingSheet('接続しています','サブ端末と接続しています…<br>数秒たってもつながらないときは、同じ Wi-Fi につながっているか確かめてください。');
     try{await p.pc.setRemoteDescription({type:'answer',sdp:u.sdp});}catch(e){syncErr('接続できませんでした','このQRは使えませんでした。最初からやり直してください。');try{p.pc.close()}catch(_){}SY.pending=null;return;}
     setTimeout(()=>{if(SY.pending===p&&!p.ok){syncErr('接続できませんでした','時間内につながりませんでした。2台が同じ Wi-Fi につながっているか確かめて、最初からやり直してください。');}},15000);
   });
@@ -1985,9 +2004,10 @@ function subJoin(){
   openScan('ホストのQRを読み取る','ホストの端末で「設定 › 端末連携 › サブ端末を追加」を押し、出てきたQRを写してください。',async txt=>{
     let u=null; try{u=await unpackSdp(txt)}catch(e){syncErr('読み取れませんでした',unpackErr(e));return;}
     if(!u||u.kind!=='o'){syncErr('読み取れませんでした',u?'これはサブ側のQRです。ホストの端末に出たQRを読み取ってください。':unpackErr());return;}
-    showModal(`${sheetHead('ホストにつなぐ')}<div class="mb"><p class="note" role="status">接続の準備をしています…</p></div><div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button></div>`);
+    loadingSheet('ホストにつなぐ','返事のQRコードを用意しています…');
     if(SY.host){try{SY.host.pc.close()}catch(e){}SY.host=null;}
-    const h={pc:new RTCPeerConnection(RTC_CFG),dc:null,ck:{},rx:0,name:''};
+    let h;
+    try{h={pc:new RTCPeerConnection(RTC_CFG),dc:null,ck:{},rx:0,name:''};}catch(e){syncErr('ホストにつなぐ',rtcErr(e));return;}
     SY.host=h;
     h.pc.ondatachannel=ev=>{h.dc=ev.channel;
       h.dc.onopen=()=>{
@@ -2005,8 +2025,9 @@ function subJoin(){
     try{
       await h.pc.setRemoteDescription({type:'offer',sdp:u.sdp});
       await h.pc.setLocalDescription(await h.pc.createAnswer()); await waitIce(h.pc);
+      if(!hasCand(h.pc.localDescription.sdp))throw new Error('nocand');
       code=await packSdp('a',h.pc.localDescription.sdp);
-    }catch(e){syncErr('ホストにつなぐ','このQRは使えませんでした。ホストでもう一度「サブ端末を追加」からやり直してください。');return;}
+    }catch(e){if(SY.host===h)SY.host=null;try{h.pc.close()}catch(_){}syncErr('ホストにつなぐ',e&&e.message==='nocand'||typeof RTCPeerConnection==='undefined'?rtcErr(e):'このQRは使えませんでした。ホストでもう一度「サブ端末を追加」からやり直してください。');return;}
     if(SY.host!==h)return;
     showModal(`${sheetHead('ホストで読み取ってください')}<div class="mb" id="sywait">
       <ol class="steps"><li>ホストの端末で「サブのQRを読み取る」を押します。</li><li>このQRを読み取ってもらうと、自動でつながります。</li></ol>
