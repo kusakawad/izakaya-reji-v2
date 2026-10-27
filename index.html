@@ -91,7 +91,7 @@ button{font:inherit;color:inherit;letter-spacing:inherit;cursor:pointer;-webkit-
 .nav.large{min-height:64px;padding-block:12px 8px}
 .ltitle{flex:1;min-width:0;margin:0;display:flex;align-items:center;gap:12px;font-size:28px;font-weight:700;line-height:1.5;letter-spacing:.01em}
 .tbadge{flex:0 0 auto;width:36px;height:36px;border-radius:var(--r-sm);display:grid;place-items:center;background:var(--badge-bg);color:var(--badge-fg)}
-.clock{display:flex;align-items:center;gap:6px;font-size:16px;color:var(--text-2)}
+.clock{display:flex;white-space:nowrap;flex:0 0 auto;align-items:center;gap:6px;font-size:16px;color:var(--text-2)}
 .navtitle{flex:1;min-width:0;text-align:center;line-height:1.3}
 .navtitle b{display:block;font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .navtitle span{display:inline-flex;align-items:center;gap:4px;font-size:14px;color:var(--text-2)}
@@ -528,6 +528,11 @@ details.alt{margin-top:8px}
 details.alt summary{min-height:44px;display:flex;align-items:center;color:var(--key);font-weight:700;cursor:pointer}
 .synchip{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;line-height:1;padding:6px 10px;border-radius:999px;background:var(--key-bg);color:var(--key);white-space:nowrap}
 .synchip.off{background:var(--error-bg);color:var(--error)}
+.ltitle{white-space:nowrap}
+/* 幅の狭い iPhone では、見出しの連携マークはアイコンだけにする */
+@media (max-width:429px){.synchip .t{display:none}.synchip{padding:6px 8px}}
+/* さらに狭い iPhone では、連携マークが出ているときだけ曜日を省く */
+@media (max-width:389px){.nav.large:has(.synchip) .clock .wd{display:none}}
 #syov{position:fixed;inset:0;z-index:25;display:none;align-items:center;justify-content:center;padding:24px;background:var(--scrim)}
 #syov.show{display:flex;animation:fade .3s ease both}
 #syov .card{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--elev-5);padding:24px;max-width:420px;width:100%;display:grid;gap:12px;text-align:center;justify-items:center}
@@ -728,6 +733,8 @@ const fmtMin=m=>m<60?m+'分':Math.floor(m/60)+'時間'+(m%60)+'分';
 const pad=n=>String(n).padStart(2,'0');
 const fmtTime=ts=>{const d=new Date(ts);return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
 const nowHM=()=>{const d=new Date();return `${pad(d.getHours())}:${pad(d.getMinutes())}`};
+/* 見出し右上の時計：日付（曜日）と時刻 */
+const nowDT=()=>{const d=new Date();return `${d.getMonth()+1}/${d.getDate()}<span class="wd">(${'日月火水木金土'[d.getDay()]})</span> ${pad(d.getHours())}:${pad(d.getMinutes())}`};
 
 /* ---------- 演出の状態 ---------- */
 const TABS=[['tables','テーブル','grid'],['history','売上','chart'],['settings','設定','settings']];
@@ -740,10 +747,10 @@ let done=null;   // 会計完了バナー {id, fresh}
 function shell(body,v,enter){
   const label=TABS.find(x=>x[0]===v)[1];
   const head=view.sub&&!isTab?`<header class="nav"><button class="navbtn" data-a="subback" aria-label="設定に戻る">${ic('back',26)}設定</button><div class="navtitle"><b>${SUBS[view.sub]}</b></div><span class="navbtn right" aria-hidden="true" style="visibility:hidden">${ic('back',26)}設定</span></header>`
-    :`<header class="nav large"><h1 class="ltitle"><span class="tbadge" aria-hidden="true">${ic(TABS.find(x=>x[0]===v)[2],22)}</span>${label}</h1>${synChip()}<span class="clock num">${ic('clock',18)}<span id="clock">${nowHM()}</span></span></header>`;
+    :`<header class="nav large"><h1 class="ltitle"><span class="tbadge" aria-hidden="true">${ic(TABS.find(x=>x[0]===v)[2],22)}</span>${label}</h1>${synChip()}<span class="clock num">${ic('clock',18)}<span id="clock">${nowDT()}</span></span></header>`;
   if(isTab&&v==='settings'){
     const sub=view.sub||(SY.role==='sub'?'sync':'shop');
-    return `<header class="nav large"><h1 class="ltitle"><span class="tbadge" aria-hidden="true">${ic('settings',22)}</span>設定</h1>${synChip()}<span class="clock num">${ic('clock',18)}<span id="clock">${nowHM()}</span></span></header>
+    return `<header class="nav large"><h1 class="ltitle"><span class="tbadge" aria-hidden="true">${ic('settings',22)}</span>設定</h1>${synChip()}<span class="clock num">${ic('clock',18)}<span id="clock">${nowDT()}</span></span></header>
   <main class="scroll split-host"><div class="ssplit ${enter&&!enter.startsWith('d:')?enter:''}">
     <div class="slist" data-keep="slist">${settingsView(null)}</div>
     <div class="sdetail" data-keep="sdetail"><div class="${enter.startsWith('d:')?enter.slice(2):''}"><h2 class="dtitle">${SUBS[sub]}</h2>${settingsView(sub)}</div></div>
@@ -1812,8 +1819,8 @@ let scanStream=null, scanRAF=0, scanCb=null, pendR=false;
 function saveSync(){try{localStorage.setItem(SYNCK,JSON.stringify({role:SY.role,name:SY.name}))}catch(e){}}
 const synName=()=>SY.name||(isTab?'iPad':'iPhone');
 function synChip(){
-  if(SY.role==='sub')return `<span class="synchip ${SY.ok?'':'off'}">${ic(SY.ok?'link':'wifioff',16)}${SY.ok?'サブ':'切断中'}</span>`;
-  if(SY.role==='host'){const n=SY.peers.filter(p=>p.ok).length;return n?`<span class="synchip">${ic('link',16)}連携 ${n}台</span>`:'';}
+  if(SY.role==='sub'){const t=SY.ok?'サブ':'切断中';return `<span class="synchip ${SY.ok?'':'off'}" role="img" aria-label="${t}">${ic(SY.ok?'link':'wifioff',16)}<span class="t">${t}</span></span>`;}
+  if(SY.role==='host'){const n=SY.peers.filter(p=>p.ok).length;return n?`<span class="synchip" role="img" aria-label="連携 ${n}台">${ic('link',16)}<span class="t">連携 ${n}台</span></span>`:'';}
   return '';
 }
 /* 画面の描き直し：入力中や並べ替え中はあとに回す */
@@ -2301,7 +2308,7 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modalOpen())closeModal();});
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});}catch(e){}
-setInterval(()=>{const c=$('clock');if(c)c.textContent=nowHM();},10000);
+setInterval(()=>{const c=$('clock');if(c)c.innerHTML=nowDT();},10000);
 setInterval(()=>{if(!$('ov').classList.contains('show')&&(view.name==='tables'||view.name==='order'))render();},30000);
 render();
 </script>
