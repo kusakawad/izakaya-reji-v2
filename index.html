@@ -1211,8 +1211,13 @@ function showModal(html,kind='sheet'){
   if(f)setTimeout(()=>{try{f.focus({preventScroll:true})}catch(e){}},RM?0:350);
 }
 function closeModal(){
+  const ov=$('ov');
+  if(ov.classList.contains('show')&&($('sywait')||$('scanv')||SY.pending)){
+    const st=(new Error().stack||'').split('\n').map(x=>x.trim()).filter(x=>x&&!/^Error/.test(x)).slice(1,3).map(x=>x.replace(/@?https?:\/\/[^ )]*/g,'').replace(/^at /,'')).join(' < ');
+    slog('シートを閉じた（'+(st||'操作')+'）');
+  }
   stopScan(); syncDropPending();
-  const ov=$('ov'); if(!ov.classList.contains('show'))return;
+  if(!ov.classList.contains('show'))return;
   const finish=()=>{ov.classList.remove('show','closing');$('mbox').innerHTML='';$('mbox').style.transform='';
     if(lastFocus&&lastFocus.isConnected){try{lastFocus.focus({preventScroll:true})}catch(e){}}};
   if(RM){finish();return;}
@@ -1816,6 +1821,27 @@ const RO=(()=>{
 const RTC_CFG={iceServers:[]};
 const CHUNK=12000;
 let scanStream=null, scanRAF=0, scanCb=null, pendR=false;
+/* 接続の記録：どこで止まったかを画面で確かめられるようにする（直近60件、この端末だけに保存） */
+const SYLOGK=KEY+'-synclog';
+let syLog=[]; try{syLog=JSON.parse(localStorage.getItem(SYLOGK))||[]}catch(e){}
+function slog(m){
+  const d=new Date(), t=`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  syLog.push(t+' '+m); if(syLog.length>60)syLog=syLog.slice(-60);
+  try{localStorage.setItem(SYLOGK,JSON.stringify(syLog))}catch(e){}
+  const el=$('sylog'); if(el)el.value=syLog.join('\n');
+}
+const errText=e=>e?(e.name&&e.name!=='Error'?e.name+': ':'')+(e.message||String(e)):'不明';
+/* 接続候補の内訳（ローカルIP／mDNS／その他）を記録用にまとめる */
+const candInfo=sdp=>{const c=(sdp.match(/a=candidate:[^\r\n]*/g)||[]);const k={ip:0,mdns:0,other:0};
+  c.forEach(l=>{const a=l.split(' ')[4]||'';if(/\.local$/.test(a))k.mdns++;else if(/^[\d.]+$|:/.test(a))k.ip++;else k.other++;});
+  return `候補${c.length}件（IP ${k.ip}・mDNS ${k.mdns}${k.other?'・他 '+k.other:''}）`;};
+const watchPc=(pc,who)=>{
+  pc.addEventListener('iceconnectionstatechange',()=>slog(`${who} ICE: ${pc.iceConnectionState}`));
+  pc.addEventListener('connectionstatechange',()=>slog(`${who} 接続: ${pc.connectionState}`));
+  pc.addEventListener('icegatheringstatechange',()=>slog(`${who} 候補集め: ${pc.iceGatheringState}`));
+};
+window.addEventListener('error',e=>{if(SY.role!=='off'||syLog.length)slog('エラー: '+(e.message||'不明'));});
+window.addEventListener('unhandledrejection',e=>{if(SY.role!=='off'||syLog.length)slog('エラー(非同期): '+errText(e.reason));});
 function saveSync(){try{localStorage.setItem(SYNCK,JSON.stringify({role:SY.role,name:SY.name}))}catch(e){}}
 const synName=()=>SY.name||(isTab?'iPad':'iPhone');
 function synChip(){
@@ -1887,7 +1913,7 @@ const codeAlt=code=>`<details class="alt"><summary>カメラが使えないと�
 
 /* --- カメラで QR を読む --- */
 async function openScan(title,lead,cb){
-  stopScan(); scanCb=cb;
+  stopScan(); scanCb=cb; slog('カメラ画面: '+title);
   showModal(`${sheetHead(title)}<div class="mb"><p class="note">${lead}</p>
     <div class="scan"><video id="scanv" playsinline muted autoplay></video><span class="sframe" aria-hidden="true"></span></div>
     <p class="note" id="scanmsg" role="status">カメラを準備しています…</p>
@@ -1899,7 +1925,8 @@ async function openScan(title,lead,cb){
     const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
     if(scanCb!==cb){stream.getTracks().forEach(t=>t.stop());return;}
     scanStream=stream;
-  }catch(e){const m=$('scanmsg');if(m)m.textContent='カメラを使えませんでした。ブラウザの設定でカメラを許可するか、「コードを貼り付け」を使ってください。';return;}
+    slog('カメラ: 起動');
+  }catch(e){slog('カメラ: 使えない '+errText(e));const m=$('scanmsg');if(m)m.textContent='カメラを使えませんでした。ブラウザの設定でカメラを許可するか、「コードを貼り付け」を使ってください。';return;}
   const v=$('scanv'); if(!v){stopScan();return;}
   v.srcObject=scanStream; try{await v.play()}catch(e){}
   const msg=$('scanmsg'); if(msg)msg.textContent='QRコードを枠の中に写してください。';
@@ -1910,7 +1937,7 @@ async function openScan(title,lead,cb){
       const w=v.videoWidth,h=v.videoHeight,k=Math.min(1,960/Math.max(w,h));
       c.width=Math.round(w*k);c.height=Math.round(h*k);g.drawImage(v,0,0,c.width,c.height);
       const r=self.jsQR(g.getImageData(0,0,c.width,c.height).data,c.width,c.height,{inversionAttempts:'dontInvert'});
-      if(r&&r.data&&r.data.startsWith('AKR')){const f=scanCb;scanCb=null;stopScan();if(f)f(r.data);return;}
+      if(r&&r.data&&r.data.startsWith('AKR')){slog(`QRを読み取り（${r.data.slice(0,5)}…${r.data.length}文字）`);const f=scanCb;scanCb=null;stopScan();if(f)Promise.resolve().then(()=>f(r.data)).catch(e=>{slog('読み取り後のエラー: '+errText(e));syncErr('読み取り後にエラーが起きました',esc(errText(e)));});return;}
     }
     scanRAF=requestAnimationFrame(tick);
   };
@@ -1932,13 +1959,16 @@ const unpackErr=e=>e&&e.message==='old'?'この端末のブラウザが古いた
 async function hostAdd(){
   if(SY.role==='sub'){toast('サブとして使っている間はホストにできません');return;}
   syncDropPending();
+  slog('ホスト: サブ端末を追加');
   loadingSheet('サブ端末を追加','接続用のQRコードを用意しています…');
   let p;
   try{
     p={id:uid(),name:'',ok:false,ck:{},rx:0,ack:0,pc:new RTCPeerConnection(RTC_CFG)};
     p.dc=p.pc.createDataChannel('reji',{ordered:true});
-  }catch(e){syncErr('サブ端末を追加',rtcErr(e));return;}
+  }catch(e){slog('ホスト: 作成できない '+errText(e));syncErr('サブ端末を追加',rtcErr(e));return;}
+  watchPc(p.pc,'ホスト');
   p.dc.onopen=()=>{
+    slog('ホスト: 通信路が開いた');
     p.ok=true; p.rx=Date.now(); if(SY.pending===p)SY.pending=null;
     if(!SY.peers.includes(p))SY.peers.push(p);
     SY.role='host'; saveSync(); wakeOn();
@@ -1947,17 +1977,22 @@ async function hostAdd(){
     toast('サブ端末と接続しました'); syncRender();
   };
   p.dc.onmessage=ev=>onRaw(p,ev.data,hostMsg);
-  p.dc.onclose=()=>dropPeer(p);
-  p.pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(p.pc.connectionState))dropPeer(p);};
+  p.dc.onclose=()=>{slog('ホスト: 通信路が閉じた');dropPeer(p);};
+  p.pc.onconnectionstatechange=()=>{const cs=p.pc.connectionState;if(!['failed','closed'].includes(cs))return;
+    const before=!p.ok&&(SY.pending===p||$('sywait'));
+    dropPeer(p);
+    if(before&&cs==='failed')syncErr('接続できませんでした','サブ端末と通信できませんでした。<br>2台が同じ Wi-Fi につながっているか、ゲスト用など端末どうしの通信を止めている Wi-Fi でないか確かめてください。');};
   SY.pending=p;
   let code='';
   try{
     await p.pc.setLocalDescription(await p.pc.createOffer()); await waitIce(p.pc);
     if(SY.pending!==p)return;
     if(!hasCand(p.pc.localDescription.sdp))throw new Error('nocand');
+    slog('ホスト: '+candInfo(p.pc.localDescription.sdp));
     code=await packSdp('o',p.pc.localDescription.sdp);
-  }catch(e){if(SY.pending===p){SY.pending=null;try{p.pc.close()}catch(_){}syncErr('サブ端末を追加',rtcErr(e));}return;}
-  if(SY.pending!==p)return;
+  }catch(e){slog('ホスト: 準備に失敗 '+errText(e));if(SY.pending===p){SY.pending=null;try{p.pc.close()}catch(_){}syncErr('サブ端末を追加',rtcErr(e));}return;}
+  if(SY.pending!==p){slog('ホスト: 準備中に取り消された');return;}
+  slog(`ホスト: QRを表示（${code.length}文字）`);
   SY.pending=p;
   $('mbox').innerHTML=`${sheetHead('サブ端末を追加')}<div class="mb">
     <ol class="steps"><li>サブ端末で「設定 › 端末連携 › ホストにつなぐ」を押し、このQRを読み取ります。</li><li>サブ端末に出たQRを、下のボタンから読み取ります。</li></ol>
@@ -1972,14 +2007,15 @@ function hostScanAnswer(){
     if(!u||u.kind!=='a'){syncErr('読み取れませんでした',u?'これはホスト側のQRです。サブ端末に出たQRを読み取ってください。':unpackErr());try{p.pc.close()}catch(_){}return;}
     SY.pending=p;
     loadingSheet('接続しています','サブ端末と接続しています…<br>数秒たってもつながらないときは、同じ Wi-Fi につながっているか確かめてください。');
-    try{await p.pc.setRemoteDescription({type:'answer',sdp:u.sdp});}catch(e){syncErr('接続できませんでした','このQRは使えませんでした。最初からやり直してください。');try{p.pc.close()}catch(_){}SY.pending=null;return;}
-    setTimeout(()=>{if(SY.pending===p&&!p.ok){syncErr('接続できませんでした','時間内につながりませんでした。2台が同じ Wi-Fi につながっているか確かめて、最初からやり直してください。');}},15000);
+    slog('ホスト: 返事 '+candInfo(u.sdp));
+    try{await p.pc.setRemoteDescription({type:'answer',sdp:u.sdp});slog('ホスト: 返事を設定');}catch(e){slog('ホスト: 返事を設定できない '+errText(e));syncErr('接続できませんでした','このQRは使えませんでした。最初からやり直してください。<br>（'+esc(errText(e))+'）');try{p.pc.close()}catch(_){}SY.pending=null;return;}
+    setTimeout(()=>{if(!p.ok&&$('sywait')){slog('ホスト: 15秒たってもつながらない');syncDropPending();try{p.pc.close()}catch(_){}syncErr('接続できませんでした','時間内につながりませんでした。2台が同じ Wi-Fi につながっているか確かめて、最初からやり直してください。');}},15000);
   });
 }
 /* シートを閉じたとき、まだつながっていない準備中の接続を片付ける */
 function syncDropPending(){const p=SY.pending;if(p&&!p.ok){SY.pending=null;try{p.pc.close()}catch(e){}}}
 function hostMsg(p,m){
-  if(m.t==='hi'){p.name=String(m.name||'').slice(0,16);syncRender();return;}
+  if(m.t==='hi'){p.name=String(m.name||'').slice(0,16);slog('ホスト: サブの名前「'+p.name+'」');syncRender();return;}
   if(m.t==='ops'){
     p.ack=Math.max(p.ack,+m.seq||0);
     (m.tables||[]).forEach(t=>{const i=S.tables.findIndex(x=>x.id===t.id);if(i>=0&&t&&Array.isArray(t.lines))S.tables[i]=t;});
@@ -1995,7 +2031,7 @@ function dropPeer(p){
   const was=SY.peers.includes(p);
   SY.peers=SY.peers.filter(x=>x!==p); p.ok=false;
   try{p.dc&&p.dc.close()}catch(e){} try{p.pc.close()}catch(e){}
-  if(was){toast(`${p.name||'サブ端末'}との接続が切れました`);syncRender();}
+  if(was){slog(`ホスト: ${p.name||'サブ端末'}との接続が切れた`);toast(`${p.name||'サブ端末'}との接続が切れました`);syncRender();}
 }
 /* サブへ配るデータ：売上は今日（直近12時間）の分だけ */
 function snap(){const now=Date.now(),k=dayKey(now);return {...S,sales:S.sales.filter(x=>dayKey(x.end)===k||now-x.end<12*3600e3)};}
@@ -2010,14 +2046,16 @@ function subJoin(){
   if(SY.role==='host'&&SY.peers.some(p=>p.ok)){toast('ホストとして使っている間はサブにできません');return;}
   openScan('ホストのQRを読み取る','ホストの端末で「設定 › 端末連携 › サブ端末を追加」を押し、出てきたQRを写してください。',async txt=>{
     let u=null; try{u=await unpackSdp(txt)}catch(e){syncErr('読み取れませんでした',unpackErr(e));return;}
-    if(!u||u.kind!=='o'){syncErr('読み取れませんでした',u?'これはサブ側のQRです。ホストの端末に出たQRを読み取ってください。':unpackErr());return;}
+    if(!u||u.kind!=='o'){slog('サブ: ホストのQRではない');syncErr('読み取れませんでした',u?'これはサブ側のQRです。ホストの端末に出たQRを読み取ってください。':unpackErr());return;}
+    slog('サブ: ホスト '+candInfo(u.sdp));
     loadingSheet('ホストにつなぐ','返事のQRコードを用意しています…');
     if(SY.host){try{SY.host.pc.close()}catch(e){}SY.host=null;}
     let h;
-    try{h={pc:new RTCPeerConnection(RTC_CFG),dc:null,ck:{},rx:0,name:''};}catch(e){syncErr('ホストにつなぐ',rtcErr(e));return;}
-    SY.host=h;
+    try{h={pc:new RTCPeerConnection(RTC_CFG),dc:null,ck:{},rx:0,name:''};}catch(e){slog('サブ: 作成できない '+errText(e));syncErr('ホストにつなぐ',rtcErr(e));return;}
+    SY.host=h; watchPc(h.pc,'サブ');
     h.pc.ondatachannel=ev=>{h.dc=ev.channel;
       h.dc.onopen=()=>{
+        slog('サブ: 通信路が開いた');
         if(SY.host!==h)return;
         SY.newJoin=SY.role!=='sub'; SY.got=false;
         if(SY.role!=='sub'){SY.role='sub';saveSync();}
@@ -2025,17 +2063,22 @@ function subJoin(){
         sendJSON(h.dc,{t:'hi',name:synName()});
       };
       h.dc.onmessage=ev2=>{if(SY.host===h)onRaw(h,ev2.data,subMsg);};
-      h.dc.onclose=()=>{if(SY.host===h)subLost();};
+      h.dc.onclose=()=>{slog('サブ: 通信路が閉じた');if(SY.host===h)subLost();};
     };
-    h.pc.onconnectionstatechange=()=>{if(SY.host===h&&['failed','closed'].includes(h.pc.connectionState))subLost();};
+    h.pc.onconnectionstatechange=()=>{const cs=h.pc.connectionState;if(SY.host!==h||!['failed','closed'].includes(cs))return;
+      const before=!SY.ok&&!!$('sywait');
+      subLost();
+      if(before&&cs==='failed')syncErr('接続できませんでした','ホストと通信できませんでした。<br>2台が同じ Wi-Fi につながっているか、ゲスト用など端末どうしの通信を止めている Wi-Fi でないか確かめてください。');};
     let code='';
     try{
       await h.pc.setRemoteDescription({type:'offer',sdp:u.sdp});
       await h.pc.setLocalDescription(await h.pc.createAnswer()); await waitIce(h.pc);
       if(!hasCand(h.pc.localDescription.sdp))throw new Error('nocand');
+      slog('サブ: '+candInfo(h.pc.localDescription.sdp));
       code=await packSdp('a',h.pc.localDescription.sdp);
-    }catch(e){if(SY.host===h)SY.host=null;try{h.pc.close()}catch(_){}syncErr('ホストにつなぐ',e&&e.message==='nocand'||typeof RTCPeerConnection==='undefined'?rtcErr(e):'このQRは使えませんでした。ホストでもう一度「サブ端末を追加」からやり直してください。');return;}
-    if(SY.host!==h)return;
+    }catch(e){slog('サブ: 準備に失敗 '+errText(e));if(SY.host===h)SY.host=null;try{h.pc.close()}catch(_){}syncErr('ホストにつなぐ',e&&e.message==='nocand'||typeof RTCPeerConnection==='undefined'?rtcErr(e):'このQRは使えませんでした。ホストでもう一度「サブ端末を追加」からやり直してください。');return;}
+    if(SY.host!==h){slog('サブ: 準備中に取り消された');return;}
+    slog(`サブ: 返事のQRを表示（${code.length}文字）`);
     showModal(`${sheetHead('ホストで読み取ってください')}<div class="mb" id="sywait">
       <ol class="steps"><li>ホストの端末で「サブのQRを読み取る」を押します。</li><li>このQRを読み取ってもらうと、自動でつながります。</li></ol>
       <div class="qrwrap"><div class="qrbox">${qrSvg(code)}</div></div>${codeAlt(code)}</div>
@@ -2050,6 +2093,7 @@ function subMsg(h,m){
   if((+m.ack||0)<SY.seq)return;
   const first=!SY.got;
   S=normalize(m.d); rebase(); SY.got=true;
+  if(first)slog('サブ: ホストのデータを受け取った');
   if(first){
     if(SY.newJoin){done=null;clip=null;curCat=0;view={name:'tables'};render.route=null;SY.newJoin=false;}
     if(modalOpen())closeModal(); toast(`ホスト「${h.name||'ホスト'}」と接続しました`); render(); return;}
@@ -2064,6 +2108,7 @@ function syncPush(){
 }
 function subLost(){
   if(!SY.ok&&!SY.host)return;
+  slog('サブ: ホストとの接続が切れた');
   SY.ok=false;
   const h=SY.host; SY.host=null; if(h){try{h.pc.close()}catch(e){}}
   if(SY.role==='sub'){if(modalOpen()&&!$('scanv'))closeModal();syncRender();}
@@ -2096,7 +2141,11 @@ function syncView(){
   const help=`<h3>うまくつながらないとき</h3>
     <ul class="steps"><li>2台とも同じ Wi-Fi につないでください。ゲスト用の Wi-Fi など、端末どうしの通信を止めている Wi-Fi ではつながりません。</li>
     <li>画面が消えたり、別のアプリに切り替えたりすると接続が切れます。切れたら、もう一度QRを読み取ってください。アプリを開いている間は、画面が自動で消えないようにしています。</li>
-    <li>ホストの端末は、充電しながら画面をつけたままにしてください（設定アプリ › 画面表示と明るさ › 自動ロック：なし）。</li></ul>`;
+    <li>ホストの端末は、充電しながら画面をつけたままにしてください（設定アプリ › 画面表示と明るさ › 自動ロック：なし）。</li></ul>
+    <h3>接続の記録</h3>
+    <p class="note">つながらないときは、ここをコピーして送ってください。原因を調べられます。</p>
+    <textarea class="codebox" id="sylog" readonly style="min-height:200px">${esc(syLog.join('\n'))}</textarea>
+    <div class="btnrow"><button class="btn btn-line btn-sm" data-a="sylogcopy">${ic('copy',18)}記録をコピー</button><button class="btn btn-text btn-sm" data-a="sylogclear">記録を消す</button></div>`;
   if(SY.role==='sub') return `<div class="sec">
     <div class="group"><div class="row"><span class="syncst grow"><span class="dot ${SY.ok?'':'off'}"></span><span>${SY.ok?`ホスト「${esc((SY.host&&SY.host.name)||'ホスト')}」に接続中`:'ホストとつながっていません'}<small class="muted" style="display:block">この端末はサブです</small></span></span></div></div>
     <p class="note">サブでは、テーブルを開く・注文を入れる・会計をすることができます。会計の記録はホストに保存されます。品目や税などの設定、売上の確認はホストで行います。</p>
@@ -2232,7 +2281,9 @@ document.addEventListener('click',e=>{
     case 'syadd': hostAdd(); return;
     case 'syscan2': hostScanAnswer(); return;
     case 'syjoin': subJoin(); return;
-    case 'sycode': {const v=($('sycodein')||{}).value||''; if(!v.trim()){toast('コードを貼り付けてください');return;} stopScan(); if(scanCb){const f=scanCb;scanCb=null;f(v.trim());} return;}
+    case 'sycode': {const v=($('sycodein')||{}).value||''; if(!v.trim()){toast('コードを貼り付けてください');return;} stopScan(); slog(`コードを貼り付け（${v.trim().length}文字）`); if(scanCb){const f=scanCb;scanCb=null;Promise.resolve().then(()=>f(v.trim())).catch(e=>{slog('エラー: '+errText(e));syncErr('エラーが起きました',esc(errText(e)));});} return;}
+    case 'sylogcopy': copyText(syLog.join('\n')||'（記録なし）').then(ok=>toast(ok?'コピーしました':'コピーできませんでした。記録を長押しして選んでください')); return;
+    case 'sylogclear': syLog=[]; try{localStorage.removeItem(SYLOGK)}catch(e){} break;
     case 'sycopy': copyText(b.dataset.v).then(ok=>toast(ok?'コピーしました':'コピーできませんでした')); return;
     case 'sykick': {const p=SY.peers.find(x=>x.id===id); if(p){dropPeer(p); toast(`${p.name||'サブ端末'}を切断しました`);} break;}
     case 'systop': confirmBox('連携をやめて、つながっているサブ端末をすべて切断しますか？',()=>{SY.peers.slice().forEach(dropPeer);SY.role='off';saveSync();},'連携をやめる',true); return;
