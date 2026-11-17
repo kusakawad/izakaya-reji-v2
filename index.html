@@ -500,6 +500,40 @@ button.row:active{background:var(--key-bg)}
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
 
+/* ---------- 提供チェック・メモ・サイズ・暗証番号 ---------- */
+.tbi{position:relative;display:inline-flex}
+.tbcount{position:absolute;top:-6px;left:14px;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--error);color:#fff;font-size:14px;font-weight:700;line-height:22px;text-align:center}
+.tblock{position:absolute;right:-12px;bottom:-4px;display:inline-flex;background:var(--surface);border-radius:999px;padding:1px;color:var(--text-2)}
+.svst{display:inline-flex;align-items:center;gap:2px;margin-left:8px;color:var(--text-2);font-weight:700}
+.svst.done{color:var(--success)}
+.lmemo{display:flex;align-items:center;gap:4px;margin-top:2px;font-size:14px;font-weight:700;color:var(--key);line-height:1.4;word-break:break-all}
+.lmemo .ic{flex:0 0 auto}
+.iprice .szl{display:block}
+.srvrow{display:flex;align-items:center;gap:12px;min-height:64px;padding:8px 8px 8px 12px;border-bottom:1px solid var(--divider)}
+.srvrow:last-child{border-bottom:0}
+.srvrow .grow{flex:1;min-width:0;line-height:1.5}
+.srvrow .grow small{display:flex;align-items:center;gap:4px;font-size:14px}
+.srvt{flex:0 0 auto;min-width:56px;max-width:96px;padding:4px 8px;border-radius:var(--r-sm);background:var(--key-bg);color:var(--key);font-weight:700;text-align:center;line-height:1.4;word-break:break-all}
+.srvrow.late .grow small{color:var(--error);font-weight:700}
+.srvrow.late{box-shadow:inset 4px 0 0 var(--error)}
+.srvrow.done .srvt{background:var(--divider);color:var(--text-2)}
+.srvrow .btn{flex:0 0 auto}
+.szg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.szb{min-height:88px;flex-direction:column;gap:2px}
+.szb b{font-size:24px;line-height:1.3}
+.szb span{font-size:16px;font-weight:400}
+.szrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.szrow[hidden]{display:none}
+.pinbox{display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:8px}
+.pindots{display:flex;gap:20px;padding:8px 0}
+.pindots i{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--text-2);transition:background-color .15s}
+.pindots i.f{background:var(--key);box-shadow:inset 0 0 0 2px var(--key)}
+.pinerr{min-height:24px;margin:0;color:var(--error);font-size:16px;font-weight:700;text-align:center}
+.pinpad{display:grid;grid-template-columns:repeat(3,76px);gap:12px;justify-content:center}
+.pinpad .btn{min-height:64px;font-size:26px;padding:0}
+.pinpad .pinf{font-size:14px;line-height:1.3;white-space:normal}
+@media (min-width:768px){.hcols .srvrow{min-height:72px}}
+
 /* ---------- 長押しで並べ替え ---------- */
 [data-rolist]>[data-roid]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;position:relative;background:var(--surface)}
 .group.ro-on{overflow:visible}
@@ -614,6 +648,12 @@ const IC={
   wifioff:'<path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/>',
   grip:'<circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/>',
   clipboard:'<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+  listchecks:'<path d="M13 5h8"/><path d="M13 12h8"/><path d="M13 19h8"/><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/>',
+  lock:'<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  unlock:'<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  msg:'<path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>',
+  bksp:'<path d="M10 5a2 2 0 0 0-1.344.519l-6.328 5.74a1 1 0 0 0 0 1.481l6.328 5.741A2 2 0 0 0 10 19h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/><path d="m12 9 6 6"/><path d="m18 9-6 6"/>',
 };
 const ic=(n,s=20,cls='')=>`<svg class="ic ${cls}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
 
@@ -656,8 +696,20 @@ function normalize(D){
     if(typeof i.cat==='number'||/^\d+$/.test(String(i.cat))){const c=D.cats[+i.cat];if(c&&!old[+i.cat])i.cat=c.id;}
     if(!D.cats.some(c=>c.id===i.cat))i.cat=D.cats[0].id;
   });
-  D.tables.forEach(t=>{t.lines=t.lines||[];t.stack=t.stack||[];let fix=false;
-    t.lines.forEach(l=>{if(!l.key){l.key=l.iid+'@'+l.price;fix=true;}if(l.base==null)l.base=l.price;});if(fix)t.stack=[];});
+  /* サイズ（小・並・大）：品目の sizes={s,l}。並はふだんの価格（i.price） */
+  D.items.forEach(i=>{
+    if(i.sizes&&typeof i.sizes==='object'){const s=parseInt(i.sizes.s),l=parseInt(i.sizes.l);i.sizes={s:isNaN(s)?i.price:s,l:isNaN(l)?i.price:l};}
+    else delete i.sizes;
+  });
+  /* 伝票の行：size（小・並・大）、memo（メモ）、sv（提供済みの数）、wt（提供待ちが始まった時刻）。
+     テーブルの slog は提供済みの記録（会計すると会計の記録へ移る）。
+     この機能より前に入っていた注文は、提供済みとして扱う */
+  D.tables.forEach(t=>{t.lines=t.lines||[];t.stack=t.stack||[];t.slog=Array.isArray(t.slog)?t.slog:[];let fix=false;
+    t.lines.forEach(l=>{if(!l.key){l.key=l.iid+'@'+l.price;fix=true;}if(l.base==null)l.base=l.price;
+      l.size=l.size||'';l.memo=l.memo||'';if(l.sv==null)l.sv=l.qty;l.sv=Math.max(0,Math.min(l.qty,+l.sv||0));if(!l.wt)l.wt=t.start||Date.now();});
+    if(fix)t.stack=[];});
+  D.opt=Object.assign({serve:true},D.opt||{});
+  D.pin=typeof D.pin==='string'?D.pin:'';
   D.sales=D.sales||[];
   D.tax=Object.assign(defTax(),D.tax||{});
   D.shop=Object.assign(defShop(),D.shop||{});
@@ -737,7 +789,14 @@ const nowHM=()=>{const d=new Date();return `${pad(d.getHours())}:${pad(d.getMinu
 const nowDT=()=>{const d=new Date();return `${d.getMonth()+1}/${d.getDate()}<span class="wd">(${'日月火水木金土'[d.getDay()]})</span> ${pad(d.getHours())}:${pad(d.getMinutes())}`};
 
 /* ---------- 演出の状態 ---------- */
-const TABS=[['tables','テーブル','grid'],['history','売上','chart'],['settings','設定','settings']];
+const TABS=[['tables','テーブル','grid'],['serve','提供','listchecks'],['history','売上','chart'],['settings','設定','settings']];
+/* 暗証番号のロック：売上・設定・会計の取り消しだけを守る。解除はこのタブを閉じるか「ロックする」まで続く */
+let unlocked=false; try{unlocked=sessionStorage.getItem(KEY+'-unlocked')==='1';}catch(e){}
+const locked=()=>!!S.pin&&!unlocked&&SY.role!=='sub';
+const LOCKED_TABS=['history','settings'];
+function setUnlocked(v){unlocked=v;try{v?sessionStorage.setItem(KEY+'-unlocked','1'):sessionStorage.removeItem(KEY+'-unlocked');}catch(e){}}
+/* 見える下のタブ：提供チェックを使わないときは「提供」を出さない。サブは売上を出さない */
+const visTabs=()=>TABS.filter(x=>!(SY.role==='sub'&&x[0]==='history')&&!(x[0]==='serve'&&!S.opt.serve));
 let fxLine={key:null,kind:null};
 const roll={};
 let prevCatRect=null, tabJust=null;
@@ -760,7 +819,10 @@ function shell(body,v,enter){
   <main class="scroll" data-keep="main"><div class="${enter}">${body}</div></main>`;
 }
 function tabbar(v){
-  return `<nav class="tabbar" aria-label="画面の切り替え">${TABS.filter(x=>!(SY.role==='sub'&&x[0]==='history')).map(([k,l,i])=>`<button data-a="tab" data-v="${k}" ${k===v?'aria-current="page"':''} class="${k===v&&tabJust===k?'just':''}">${ic(i,24)}<span>${l}</span></button>`).join('')}</nav>`;
+  const tabs=visTabs(), wait=S.opt.serve?unservedCount():0;
+  return `<nav class="tabbar" aria-label="画面の切り替え" style="grid-template-columns:repeat(${tabs.length},1fr)">${tabs.map(([k,l,i])=>{
+    const lk=locked()&&LOCKED_TABS.includes(k), bd=k==='serve'&&wait?`<span class="tbcount num" aria-label="未提供 ${wait}点">${wait>99?'99+':wait}</span>`:'';
+    return `<button data-a="tab" data-v="${k}" ${k===v?'aria-current="page"':''} class="${k===v&&tabJust===k?'just':''}" ${lk?`aria-label="${l}（暗証番号でロック中）"`:''}><span class="tbi">${ic(i,24)}${bd}${lk?`<span class="tblock">${ic('lock',14)}</span>`:''}</span><span>${l}</span></button>`;}).join('')}</nav>`;
 }
 function doneBanner(){
   if(!done)return '';
@@ -789,6 +851,30 @@ function tablesView(enter){
       :`<span class="tstate">${ic('plus',16)}空席</span>`}
   </button>`).join('')}</div></div>`;
 }
+/* 提供：まだ出していない注文（待ちの長い順）と、今日提供した記録。iPad では左右に並べる */
+function serveView(enter){
+  const wait=[];
+  S.tables.forEach(t=>{if(t.open)t.lines.forEach(l=>{const n=unservedOf(l);if(n)wait.push({t,l,n});});});
+  wait.sort((a,b)=>(a.l.wt||0)-(b.l.wt||0));
+  const log=servedToday(), now=Date.now();
+  const ago=ts=>{const m=Math.max(0,Math.floor((now-ts)/60000));return m<1?'たった今':fmtMin(m)+'前';};
+  return `<div class="sec ${enter?'grow-in':''}"><div class="hcols"><section>
+    <h2>未提供 <span class="muted num">${wait.reduce((a,w)=>a+w.n,0)}点</span></h2>
+    <div class="group">${wait.length?wait.map(({t,l,n})=>{const m=Math.floor((now-(l.wt||now))/60000);
+      return `<div class="srvrow ${m>=15?'late':''}"><span class="srvt">${esc(t.name)}</span>
+      <span class="grow"><b>${esc(lineLabel(l))}</b>${n>1?` <b class="num">×${n}</b>`:''}${l.memo?`<span class="lmemo">${ic('msg',14)}${esc(l.memo)}</span>`:''}<small class="muted num">${ic('clock',14)}${ago(l.wt||now)}</small></span>
+      <button class="btn btn-fill btn-sm" data-a="srv" data-t="${t.id}" data-id="${esc(l.key)}" aria-label="${esc(t.name)}の${esc(lineLabel(l))}を提供済みにする">${ic('check',18)}提供</button></div>`;}).join('')
+      :`<div class="empty">${ic('ccheck',40)}まだ出していない注文はありません。</div>`}</div>
+    <p class="note">「提供」を押すと${isTab?'右':'下'}の記録へ移ります。15分以上待っている注文は赤で表示します。</p>
+    </section><section>
+    <h2>提供済み（今日） <span class="muted num">${log.reduce((a,e)=>a+e.qty,0)}点</span></h2>
+    <div class="group">${log.length?log.map(e=>`<div class="srvrow done"><span class="srvt">${esc(e.table)}</span>
+      <span class="grow"><b>${esc(e.name)}</b>${e.qty>1?` <b class="num">×${e.qty}</b>`:''}${e.memo?`<span class="lmemo">${ic('msg',14)}${esc(e.memo)}</span>`:''}<small class="muted num">${pad(new Date(e.at).getHours())}:${pad(new Date(e.at).getMinutes())} 提供${e.live?'':e.voided?'・会計取り消し':'・会計済み'}</small></span>
+      ${e.live?`<button class="btn btn-text btn-sm" data-a="srvundo" data-t="${e.tid}" data-id="${e.id}" aria-label="${esc(e.table)}の${esc(e.name)}を未提供に戻す">${ic('undo',18)}戻す</button>`:''}</div>`).join('')
+      :'<div class="empty">今日はまだ提供した注文がありません。</div>'}</div>
+    <p class="note">会計したテーブルの分も今日のうちはここに残ります。会計前なら「戻す」で未提供に戻せます。</p>
+    </section></div></div>`;
+}
 function orderView(t,enter,catEnter){
   if(!(curCat<S.cats.length))curCat=0;
   const cid=S.cats[curCat].id, items=S.items.filter(i=>i.cat===cid);
@@ -805,16 +891,18 @@ function orderView(t,enter,catEnter){
   <div class="split"><section class="ticket" aria-label="伝票">
   <div class="lines" data-keep="lines" aria-label="注文">${t.lines.length?t.lines.map(l=>{
       const cls=fxLine.key===l.key?(fxLine.kind==='new'?'is-new':'is-bump'):'';
+      const nm=lineLabel(l), un=unservedOf(l);
+      const sv=S.opt.serve?(un===0?`<span class="svst done">${ic('check',14)}提供済み</span>`:l.sv>0?`<span class="svst">提供 ${l.sv}/${l.qty}</span>`:''):'';
       return `<div class="line ${cls}" data-k="${esc(l.key)}">
-      <button class="ln" data-a="lprice" data-id="${esc(l.key)}" aria-label="${esc(l.name)}の価格を変更"><span>${esc(l.name)}${l.price!==l.base?`<span class="tag">${l.price===0?'サービス':'価格変更'}</span>`:''}</span><small class="num">${yen(l.price)}${l.price!==l.base?`（定価 ${yen(l.base)}）`:''}</small></button>
-      <div class="stepper"><button data-a="dec" data-id="${esc(l.key)}" aria-label="${esc(l.name)}を1つ減らす">${ic('minus',20)}</button><span class="qn num" aria-label="数量">${l.qty}</span><button data-a="inc" data-id="${esc(l.key)}" aria-label="${esc(l.name)}を1つ増やす">${ic('plus',20)}</button></div>
+      <button class="ln" data-a="lprice" data-id="${esc(l.key)}" aria-label="${esc(nm)}の価格とメモを変更"><span>${esc(nm)}${l.price!==l.base?`<span class="tag">${l.price===0?'サービス':'価格変更'}</span>`:''}</span>${l.memo?`<span class="lmemo">${ic('msg',14)}${esc(l.memo)}</span>`:''}<small class="num">${yen(l.price)}${l.price!==l.base?`（定価 ${yen(l.base)}）`:''}${sv}</small></button>
+      <div class="stepper"><button data-a="dec" data-id="${esc(l.key)}" aria-label="${esc(nm)}を1つ減らす">${ic('minus',20)}</button><span class="qn num" aria-label="数量">${l.qty}</span><button data-a="inc" data-id="${esc(l.key)}" aria-label="${esc(nm)}を1つ増やす">${ic('plus',20)}</button></div>
       <span class="lsub num">${yen(l.price*l.qty)}</span></div>`;}).join('')
-    :`<div class="empty">${ic('clipboard',40)}${isTab?'右':'下'}の品目をタップすると注文が入ります。<br>入った品名をタップすると価格を変えられます。</div>`}</div>
+    :`<div class="empty">${ic('clipboard',40)}${isTab?'右':'下'}の品目をタップすると注文が入ります。<br>入った品名をタップすると価格やメモを変えられます。</div>`}</div>
   <div class="sumbar"><span class="cnt"><b class="num">${count(t)}</b>点</span><span class="sumr"><small class="num">${esc(b.name)} ${pct(b.rate)} 税込${b.adj.length?'・割引/サービス料込':''}${b.total!==b.sub?`（${S.tax.mode==='excl'?'税抜':'価格計'} ${yen(b.sub)}）`:''}</small><span class="total num" data-roll="${b.total}" data-rid="o${t.id}">${yen(b.total)}</span></span></div>
   ${actions}</section>
   <section class="menu" aria-label="品目">
   <div class="cats" role="tablist" aria-label="カテゴリ" data-keepx="cats">${S.cats.map((c,i)=>`<button role="tab" aria-selected="${i===curCat}" data-a="cat" data-i="${i}" class="${i===curCat?'on':''}">${esc(c.name)}</button>`).join('')}<span class="cthumb" aria-hidden="true"></span></div>
-  <div class="igrid ${catEnter?'stagger':''}" data-keep="igrid">${items.map((i,k)=>`<button class="item" style="--i:${k}" data-a="add" data-id="${i.id}"><span class="iname">${esc(i.name)}</span><span class="iprice num">${i.ask?'<span class="ask">時価</span>':yen(i.price)}</span></button>`).join('')
+  <div class="igrid ${catEnter?'stagger':''}" data-keep="igrid">${items.map((i,k)=>`<button class="item" style="--i:${k}" data-a="add" data-id="${i.id}"><span class="iname">${esc(i.name)}</span><span class="iprice num">${i.ask?'<span class="ask">時価</span>':yen(i.price)}${i.sizes?'<span class="ask szl">小・並・大</span>':''}</span></button>`).join('')
     ||'<div class="empty">このカテゴリには品目がありません。設定タブから追加できます。</div>'}</div>
   </section></div>
   </div>`;
@@ -901,7 +989,7 @@ function calcGuide(){
       <div class="bd">${bdRows(b,fake,false).join('')}</div>
       <div class="exsum"><span>合計</span><span><b class="num">${yen(b.total)}</b> <small class="muted num">（内消費税 ${yen(b.tax)}）</small></span></div></div>`;
 }
-const SUBS={shop:'店舗情報',tax:'消費税',disc:'割引',svc:'サービス料',pay:'支払い方法',items:'品目',cats:'カテゴリ',tables:'テーブル',backup:'バックアップ',reset:'リセット',sync:'端末連携（試作）'};
+const SUBS={serve:'提供チェック',pin:'暗証番号',shop:'店舗情報',tax:'消費税',disc:'割引',svc:'サービス料',pay:'支払い方法',items:'品目',cats:'カテゴリ',tables:'テーブル',backup:'バックアップ',reset:'リセット',sync:'端末連携（試作）'};
 function settingsView(sub){
   const tx=S.tax;
   const cur=isTab?(view.sub||'shop'):null;
@@ -927,6 +1015,11 @@ function settingsView(sub){
       ${srow('utensils','品目',S.items.length+'品','items')}
       ${srow('tags','カテゴリ',S.cats.length+'件','cats')}
       ${srow('table','テーブル',S.tables.length+'卓','tables')}
+    </div>
+    <h2 class="gh">運用</h2>
+    <div class="group">
+      ${srow('listchecks','提供チェック',S.opt.serve?'使う':'使わない','serve')}
+      ${srow(S.pin&&!unlocked?'lock':S.pin?'unlock':'lock','暗証番号',S.pin?(unlocked?'設定済み・解除中':'設定済み'):'なし','pin')}
     </div>
     <h2 class="gh">ほかの端末</h2>
     <div class="group">
@@ -1033,13 +1126,28 @@ function settingsView(sub){
     <div class="btnrow"><button class="btn btn-line" data-a="rsample" data-v="rcpt">${ic('receipt',20)}レシート</button><button class="btn btn-line" data-a="rsample" data-v="ryo">${ic('file',20)}領収書</button></div>
   </div>`;
   if(sub==='sync') return syncView();
+  if(sub==='serve') return `<div class="sec">
+    <div class="group"><label class="ck"><input type="checkbox" data-opt="serve" ${S.opt.serve?'checked':''}><span>提供チェックを使う<small>下に「提供」タブが出て、まだ出していない注文の一覧と、今日提供した記録を見られます</small></span></label></div>
+    <p class="note">注文が入ると「提供」タブに並びます。料理や飲み物を出したら「提供」を押します。伝票にも「提供済み」と表示します。</p>
+    <p class="note">端末連携でサブ端末を厨房に置くと、ホールで入れた注文をそのまま厨房の「提供」タブで見られます。</p>
+  </div>`;
+  if(sub==='pin') return `<div class="sec">
+    <p class="note">4桁の暗証番号を設定すると、<b>売上・設定・会計の取り消し</b>を開くときに入力が必要になります。注文と会計は暗証番号なしでできるので、スタッフ用の端末としてそのまま使えます。</p>
+    ${S.pin?`<div class="group"><div class="row"><span class="sic">${ic(unlocked?'unlock':'lock',20)}</span><span class="grow">${unlocked?'今は解除中です':'ロック中です'}<small class="muted" style="display:block">このタブを閉じるか「ロックする」を押すと、またロックされます</small></span></div></div>
+      <div class="btnrow" style="margin-top:16px"><button class="btn btn-fill" data-a="pinlock">${ic('lock',20)}ロックする</button><button class="btn btn-line" data-a="pinchg">暗証番号を変更</button></div>
+      <div class="btnrow"><button class="btn btn-text" data-a="pindel" style="color:var(--error)">${ic('trash',20)}暗証番号をやめる</button></div>`
+    :`<button class="btn btn-fill btn-block" data-a="pinset">${ic('lock',20)}暗証番号を設定</button>`}
+    <h3>忘れたとき</h3>
+    <p class="note">暗証番号の入力画面の「忘れたとき」から、店舗情報の電話番号を入力すると解除できます。そのため、暗証番号を設定するには店舗情報の電話番号が必要です。</p>
+    <p class="note">暗証番号はこの端末の中だけで確かめる仕組みです。うっかり操作を防ぐためのもので、データを盗み見から守るものではありません。</p>
+  </div>`;
   if(sub==='items') return `<div class="sec">
     <p class="note rohint">${ic('grip',18)}行を長押しして上下に動かすと、カテゴリの中で並び順を変えられます。</p>
     <div class="btnrow"><button class="btn btn-line" data-a="txtout" data-c="">${ic('copy',20)}全メニューをコピー</button><button class="btn btn-line" data-a="txtin">${ic('listplus',20)}文字から一括登録</button></div>
     ${clip?`<div class="clipbar">${ic('paste',22)}<span class="grow">コピー中：<b>${esc(clip.name)}</b>（${clip.ask?'価格入力':yen(clip.price)}）<small>貼り付けたいカテゴリの「ここに貼り付け」を押してください</small></span><button class="btn btn-text btn-sm" data-a="clipclear">やめる</button></div>`:''}
     ${S.cats.map(c=>`<div class="cathd"><h3>${esc(c.name)}</h3><button class="btn btn-text btn-sm" data-a="txtout" data-c="${c.id}">${ic('copy',18)}文字でコピー</button></div>
       <div class="group" data-rolist="items:${c.id}">
-      ${S.items.filter(i=>i.cat===c.id).map(i=>`<button class="row" data-a="iedit" data-id="${i.id}" data-roid="${i.id}"><span class="grow">${esc(i.name)}</span><span class="muted num">${i.ask?'時価（初期値 '+yen(i.price)+'）':yen(i.price)}</span>${ic('chev',20,'chev')}</button>`).join('')}
+      ${S.items.filter(i=>i.cat===c.id).map(i=>`<button class="row" data-a="iedit" data-id="${i.id}" data-roid="${i.id}"><span class="grow">${esc(i.name)}</span><span class="muted num">${i.ask?'時価（初期値 '+yen(i.price)+'）':i.sizes?`小${yen(i.sizes.s)}・並${yen(i.price)}・大${yen(i.sizes.l)}`:yen(i.price)}</span>${ic('chev',20,'chev')}</button>`).join('')}
       <button class="addrow" data-a="inew" data-c="${c.id}">${ic('plus',20)}${esc(c.name)}に追加</button>
       ${clip?`<button class="addrow paste" data-a="paste" data-c="${c.id}">${ic('paste',20)}ここに貼り付け（${esc(clip.name)}）</button>`:''}</div>`).join('')}
     <p class="note">カテゴリの追加や並べ替えは「設定 › カテゴリ」でできます。</p>
@@ -1090,6 +1198,8 @@ function render(){
   const oldOn=document.querySelector('.cats .on'); prevCatRect=oldOn?{l:oldOn.offsetLeft,w:oldOn.offsetWidth}:null;
 
   if(SY.role==='sub'&&(view.name==='history'||(view.name==='settings'&&view.sub&&view.sub!=='sync')))view={name:view.name==='history'?'tables':'settings',sub:view.name==='history'?undefined:'sync'};
+  if(locked()&&LOCKED_TABS.includes(view.name))view={name:'tables'};
+  if(view.name==='serve'&&!S.opt.serve)view={name:'tables'};
   const route=view.name+(view.tid||'')+(view.sub||'');
   const routeChanged=route!==render.route;
   const catChanged=view.name==='order'&&(routeChanged||curCat!==render.cat);
@@ -1110,7 +1220,7 @@ function render(){
     if(!t){view={name:'tables'};return render();}
     $('app').innerHTML=`<div class="pane">${orderView(t,enter,catChanged&&!routeChanged)}</div>${tabbar('tables')}`;
   }else{
-    const body=view.name==='history'?historyView(enter):view.name==='settings'?(isTab?'':settingsView(view.sub)):tablesView(enter);
+    const body=view.name==='history'?historyView(enter):view.name==='serve'?serveView(enter):view.name==='settings'?(isTab?'':settingsView(view.sub)):tablesView(enter);
     $('app').innerHTML=`<div class="pane">${shell(body,view.name,enter)}</div>${tabbar(view.name)}`;
   }
   $('app').className=view.name==='order'?'is-order':'';
@@ -1312,6 +1422,8 @@ function openItem(id,cat){
     <div class="pricerow"><label class="fl">価格（値引きは「＋/−」でマイナスに）<input id="iprice" inputmode="numeric" autocomplete="off" value="${it.price}" class="${+it.price<0?'neg':''}"></label>${pmBtn('iprice')}</div>
     <label class="fl">カテゴリ<select id="icat">${S.cats.map(c=>`<option value="${c.id}" ${c.id===it.cat?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label>
     <label class="ck inline-ck"><input type="checkbox" id="iask" ${it.ask?'checked':''}><span>注文のたびに価格を入力<small>時価の品など。上の価格は入力欄の初期値になります</small></span></label>
+    <label class="ck inline-ck"><input type="checkbox" id="isz" ${it.sizes?'checked':''}><span>サイズを選ぶ（小・並・大）<small>注文するときにサイズを選びます。並は上の価格です</small></span></label>
+    <div class="szrow" id="iszbox" ${it.sizes?'':'hidden'}><label class="fl">小の価格<input id="isz-s" inputmode="numeric" autocomplete="off" value="${it.sizes?it.sizes.s:''}"></label><label class="fl">大の価格<input id="isz-l" inputmode="numeric" autocomplete="off" value="${it.sizes?it.sizes.l:''}"></label></div>
     ${id?`<div class="btnrow"><button class="btn btn-line" data-a="icopy">${ic('copy',20)}この品目をコピー</button><button class="btn btn-text" data-a="idel" style="color:var(--error)">${ic('trash',20)}削除</button></div>`:''}</div>
     <div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button><button class="btn btn-fill" data-a="isave">保存</button></div>`);
 }
@@ -1343,7 +1455,7 @@ function openCatDel(id){
 let clip=null;
 function pasteItem(cid){
   if(!clip)return;
-  const it={id:uid(),name:clip.name,price:clip.price,cat:cid,ask:!!clip.ask};
+  const it={id:uid(),name:clip.name,price:clip.price,cat:cid,ask:!!clip.ask,...(clip.sizes?{sizes:{...clip.sizes}}:{})};
   S.items.push(it); save(); render(); openItem(it.id);
   toast('貼り付けました。品名を変えるならここで');
 }
@@ -1576,7 +1688,9 @@ async function openReceipt(x,kind){
   showModal(`${sheetHead(label)}<div class="mb">
     <div class="rprev"><img src="${r.canvas.toDataURL('image/png')}" alt="${label}のプレビュー" style="max-width:${r.paper===80?300:230}px"></div>
     ${!S.shop.name&&!S.shop.regno?`<p class="note warn">${ic('alert',20)}<span>店名・登録番号が未入力です。設定タブの「レシート・領収書」で入力してください。</span></p>`:''}
-    <p class="note">「共有・印刷」を押すと共有画面が開きます。印刷アプリ（SII URL Print Agentなど）や「プリント」を選んでください。</p></div>
+    <p class="note">「共有・印刷」を押すと共有画面が開きます。印刷アプリ（SII URL Print Agentなど）や「プリント」を選んでください。</p>
+    <button class="btn btn-line btn-block" data-a="rimg">${ic('image',20)}画像で保存・送る</button>
+    <p class="note">紙に出さずに渡すときは、画像（PNG）にして AirDrop や LINE などで送れます。</p></div>
     <div class="mbtns"><button class="btn btn-line" data-a="mclose">閉じる</button><button class="btn btn-fill" data-a="rshare">${ic('upload',20)}共有・印刷</button></div>`);
 }
 async function shareReceipt(){
@@ -1587,6 +1701,18 @@ async function shareReceipt(){
     if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return;}
   }catch(e){if(e&&e.name==='AbortError')return;}
   saveFile(lastRcpt.name,pdf,'application/pdf',lastRcpt.label);
+}
+/* レシート・領収書を画像（PNG）にする。共有できる端末では共有画面、できなければ保存 */
+function shareReceiptImage(){
+  if(!lastRcpt)return;
+  const name=lastRcpt.name.replace(/\.pdf$/,'.png');
+  lastRcpt.canvas.toBlob(async blob=>{
+    if(!blob){toast('画像を作れませんでした');return;}
+    try{const f=new File([blob],name,{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return;}}
+    catch(e){if(e&&e.name==='AbortError')return;}
+    saveFile(name,blob,'image/png','画像');
+  },'image/png');
 }
 function sampleSale(){
   const it=S.items.slice(0,3);
@@ -1604,44 +1730,157 @@ function openTableName(id){
     <div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button><button class="btn btn-fill" data-a="tsave">保存</button></div>`);
 }
 
+/* ---------- 暗証番号 ----------
+   S.pin は暗証番号のハッシュ（空文字は未設定）。入力は4桁。1桁ごとに画面全体を作り直さず、点と文言だけ書き換える */
+async function pinHash(code){
+  const txt='akari-pin:'+code;
+  try{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(txt));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}}catch(e){}
+  let h=0x811c9dc5;for(let i=0;i<txt.length;i++){h^=txt.charCodeAt(i);h=Math.imul(h,0x01000193);}return 'fnv'+(h>>>0).toString(16);
+}
+const telDigits=()=>String(S.shop.tel||'').replace(/[^\d]/g,'');
+const PIN_T={unlock:'暗証番号を入力',check:'今の暗証番号を入力',set1:'新しい暗証番号（4桁）',set2:'確認のためもう一度'};
+let pinSt=null;
+/* mode：unlock（ロック解除）／check（変更・取りやめの前の確認）／set1・set2（新しく設定）。next：check のあと set か del か */
+function openPin(mode,o={}){
+  pinSt={mode,buf:'',first:'',err:'',busy:false,cb:o.cb||null,next:o.next||null};
+  showModal(`${sheetHead(PIN_T[mode])}<div class="mb"><div class="pinbox">
+    <div class="pindots" id="pindots" role="img" aria-label="0桁入力済み">${'<i></i>'.repeat(4)}</div>
+    <p class="pinerr" id="pinerr" role="alert"></p>
+    <div class="pinpad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="btn btn-line num" data-a="pk" data-v="${n}">${n}</button>`).join('')}
+      ${mode==='unlock'||mode==='check'?'<button class="btn btn-text pinf" data-a="pinforgot">忘れたとき</button>':'<span></span>'}
+      <button class="btn btn-line num" data-a="pk" data-v="0">0</button>
+      <button class="btn btn-text" data-a="pk" data-v="del" aria-label="1桁消す">${ic('bksp',26)}</button></div></div></div>
+    <div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button></div>`);
+}
+function paintPin(shake){
+  const d=$('pindots'), e=$('pinerr'), h=$('mtitle'); if(!d||!pinSt)return;
+  [...d.children].forEach((x,i)=>x.className=i<pinSt.buf.length?'f':'');
+  d.setAttribute('aria-label',pinSt.buf.length+'桁入力済み');
+  if(h)h.textContent=PIN_T[pinSt.mode];
+  if(e){e.textContent=pinSt.err;}
+  if(shake&&!RM)d.animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(-6px)'},{transform:'translateX(0)'}],{duration:320});
+}
+function pinKey(v){
+  if(!pinSt||pinSt.busy)return;
+  if(v==='del')pinSt.buf=pinSt.buf.slice(0,-1);
+  else if(pinSt.buf.length<4){pinSt.buf+=v;pinSt.err='';}
+  paintPin();
+  if(pinSt.buf.length===4){pinSt.busy=true;try{document.activeElement&&document.activeElement.blur()}catch(e){}setTimeout(pinDone,120);}
+}
+async function pinDone(){
+  const st=pinSt; if(!st)return;
+  const code=st.buf, m=st.mode; st.buf=''; st.busy=false;
+  if(m==='unlock'||m==='check'){
+    if(await pinHash(code)!==S.pin){st.err='暗証番号が違います';buzz();paintPin(true);return;}
+    if(m==='unlock'){setUnlocked(true);const cb=st.cb;pinSt=null;closeModal();toast('ロックを解除しました');if(cb)cb();else render();return;}
+    if(st.next==='del'){S.pin='';setUnlocked(false);pinSt=null;save();closeModal();render();toast('暗証番号をやめました');return;}
+    st.mode='set1'; st.err=''; paintPin(); return;
+  }
+  if(m==='set1'){st.first=code;st.mode='set2';st.err='';paintPin();return;}
+  if(m==='set2'){
+    if(code!==st.first){st.mode='set1';st.first='';st.err='1回目と違いました。最初から入力してください';buzz();paintPin(true);return;}
+    S.pin=await pinHash(code); setUnlocked(true); pinSt=null; save(); closeModal(); render(); toast('暗証番号を設定しました');
+  }
+}
+function openPinForgot(){
+  const cb=pinSt&&pinSt.cb; pinSt=null;
+  showModal(`${sheetHead('暗証番号を忘れたとき')}<div class="mb">
+    <p class="msg">店舗情報に登録してある電話番号を入力すると、暗証番号を解除します（暗証番号なしの状態に戻ります）。</p>
+    <label class="fl">電話番号<input id="pintel" inputmode="tel" autocomplete="off" placeholder="例：0773-00-0000"></label>
+    <p class="pinerr" id="pinerr" role="alert"></p></div>
+    <div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button><button class="btn btn-fill" data-a="pintelok">解除する</button></div>`);
+}
+
 /* ---------- order ops ---------- */
-function addItem(t,iid,price){
+/* 同じ品・同じ価格・同じサイズ・同じメモの注文は1行にまとめる。サイズもメモもない行は以前と同じキー */
+const lineKey=(iid,price,size,memo)=>iid+'@'+price+(size?'|'+size:'')+(memo?'#'+memo:'');
+/* 品名にサイズを付けた表示名（例：親子丼（大））。会計の記録にはこの名前で残す */
+const lineLabel=l=>l.name+(l.size?`（${l.size}）`:'');
+const SIZES=[['s','小'],['n','並'],['l','大']];
+const sizePrice=(it,k)=>k==='s'?it.sizes.s:k==='l'?it.sizes.l:it.price;
+/* 提供待ちが増えるとき：それまで全部出していた行なら、待ち始めの時刻を今にする */
+function bumpWait(l){if((l.sv||0)>=l.qty)l.wt=Date.now();}
+function addItem(t,iid,price,size){
   const it=S.items.find(i=>i.id===iid); if(!it)return null;
-  if(price==null)price=it.price;
-  const key=iid+'@'+price;
+  size=size||''; const sk=(SIZES.find(s=>s[1]===size)||[])[0];
+  const base=it.sizes&&sk?sizePrice(it,sk):it.price;
+  if(price==null)price=base;
+  const key=lineKey(iid,price,size,'');
   const l=t.lines.find(x=>x.key===key);
-  if(l)l.qty++; else t.lines.push({key,iid,name:it.name,price,base:it.price,qty:1});
+  if(l){bumpWait(l);l.qty++;} else t.lines.push({key,iid,name:it.name,price,base,qty:1,size,memo:'',sv:0,wt:Date.now()});
   t.stack.push(key);
   return {key,existed:!!l};
 }
-function incLine(t,key){const l=t.lines.find(x=>x.key===key);if(!l)return;l.qty++;t.stack.push(key);}
+function incLine(t,key){const l=t.lines.find(x=>x.key===key);if(!l)return;bumpWait(l);l.qty++;t.stack.push(key);}
 function decItem(t,key,fromUndo){
   const l=t.lines.find(x=>x.key===key); if(!l)return;
-  l.qty--; if(l.qty<=0)t.lines=t.lines.filter(x=>x!==l);
+  l.qty--; if(l.sv>l.qty)l.sv=l.qty; if(l.qty<=0)t.lines=t.lines.filter(x=>x!==l);
   if(!fromUndo){const k=t.stack.lastIndexOf(key);if(k>=0)t.stack.splice(k,1);}
 }
-function repriceLine(t,key,price){
-  const l=t.lines.find(x=>x.key===key); if(!l||l.price===price)return;
-  const nk=l.iid+'@'+price, other=t.lines.find(x=>x.key===nk);
-  if(other){other.qty+=l.qty;t.lines=t.lines.filter(x=>x!==l);}
-  else{l.price=price;l.key=nk;}
+/* 行の価格とメモを変える。変えた結果、同じ内容の行があればまとめる */
+function editLine(t,key,price,memo){
+  const l=t.lines.find(x=>x.key===key); if(!l)return;
+  memo=(memo||'').trim().slice(0,30);
+  if(l.price===price&&l.memo===memo)return;
+  const nk=lineKey(l.iid,price,l.size,memo), other=t.lines.find(x=>x.key===nk&&x!==l);
+  if(other){other.qty+=l.qty;other.sv=(other.sv||0)+(l.sv||0);other.wt=Math.min(other.wt||Date.now(),l.wt||Date.now());t.lines=t.lines.filter(x=>x!==l);}
+  else{l.price=price;l.memo=memo;l.key=nk;}
   t.stack=t.stack.map(k=>k===key?nk:k);
+  t.slog.forEach(e=>{if(e.key===key)e.key=nk;});
   return nk;
+}
+const repriceLine=(t,key,price)=>{const l=t.lines.find(x=>x.key===key);return l?editLine(t,key,price,l.memo):undefined;};
+
+/* ---------- 提供チェック ---------- */
+const unservedOf=l=>Math.max(0,l.qty-(l.sv||0));
+const unservedCount=()=>S.tables.reduce((a,t)=>a+(t.open?t.lines.reduce((b,l)=>b+unservedOf(l),0):0),0);
+function serveLine(t,key){
+  const l=t.lines.find(x=>x.key===key); if(!l)return;
+  const n=unservedOf(l); if(!n)return;
+  t.slog.push({id:uid(),at:Date.now(),key,name:lineLabel(l),qty:n,memo:l.memo||'',wt:l.wt||0});
+  l.sv=l.qty;
+}
+function unserve(t,eid){
+  const e=t.slog.find(x=>x.id===eid); if(!e)return;
+  const l=t.lines.find(x=>x.key===e.key);
+  if(l){const before=unservedOf(l);l.sv=Math.max(0,(l.sv||0)-e.qty);if(!before&&e.wt)l.wt=e.wt;}
+  t.slog=t.slog.filter(x=>x!==e);
+}
+/* 今日提供した記録：使用中テーブルの記録（戻せる）と、今日の会計に移った記録 */
+function servedToday(){
+  const k=dayKey(Date.now()), out=[];
+  S.tables.forEach(t=>{if(t.open)t.slog.forEach(e=>{if(dayKey(e.at)===k)out.push({...e,table:t.name,tid:t.id,live:true});});});
+  S.sales.forEach(x=>(x.slog||[]).forEach(e=>{if(dayKey(e.at)===k)out.push({...e,table:x.table,live:false,voided:!!x.voided});}));
+  return out.sort((a,b)=>b.at-a.at);
 }
 let priceCtx=null;
 function openPrice(ctx){
   priceCtx=ctx; const t=curT();
-  let name,base,cur,qty=0;
-  if(ctx.mode==='add'){const it=S.items.find(i=>i.id===ctx.iid);name=it.name;base=it.price;cur=it.price;}
-  else{const l=t.lines.find(x=>x.key===ctx.key);name=l.name;base=l.base;cur=l.price;qty=l.qty;}
+  let name,base,cur,qty=0,memo='';
+  if(ctx.mode==='add'){const it=S.items.find(i=>i.id===ctx.iid);name=it.name+(ctx.size?`（${ctx.size}）`:'');base=ctx.base!=null?ctx.base:it.price;cur=base;}
+  else{const l=t.lines.find(x=>x.key===ctx.key);name=lineLabel(l);base=l.base;cur=l.price;qty=l.qty;memo=l.memo||'';}
   priceCtx.base=base;
   showModal(`${sheetHead(esc(name))}<div class="mb">
     <div class="pricerow"><label class="fl">${ctx.mode==='add'?'価格':'1つあたりの価格'+(qty>1?`（${qty}点すべてに適用）`:'')}<input id="pval" class="big ${cur<0?'neg':''}" inputmode="numeric" autocomplete="off" value="${cur}"></label>${pmBtn('pval')}</div>
     <div class="quick"><button class="btn btn-line" data-a="pp" data-v="0">サービス ¥0</button><button class="btn btn-line" data-a="pp" data-v="half">半額</button><button class="btn btn-line num" data-a="pp" data-v="base">定価 ${yen(base)}</button></div>
-    ${ctx.mode==='line'&&qty>1?'<p class="note">1点だけサービスにしたいときは、−で1つ減らしてからもう一度追加し、その行を変更してください。</p>':''}</div>
+    ${ctx.mode==='line'?`<label class="fl" style="margin-top:16px">メモ${qty>1?`（${qty}点すべてに付きます）`:''}<input id="pmemo" value="${esc(memo)}" maxlength="30" placeholder="例：ネギ抜き、取り分け皿2枚" autocomplete="off" enterkeyhint="done"></label>
+      <p class="note">メモは伝票と「提供」の画面に出ます。レシートには印字しません。</p>`:''}
+    ${ctx.mode==='line'&&qty>1?'<p class="note">1点だけサービスやメモにしたいときは、−で1つ減らしてからもう一度追加し、その行を変更してください。</p>':''}</div>
     <div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button><button class="btn btn-fill" data-a="pok">${ctx.mode==='add'?'追加':'変更'}</button></div>`);
 }
 
+/* サイズを選ぶ（小・並・大）。選ぶとすぐ伝票に入る。時価の品はこのあと価格を入れる */
+let sizeIid=null;
+function openSize(iid){
+  sizeIid=iid; const it=S.items.find(i=>i.id===iid);
+  showModal(`${sheetHead(esc(it.name)+' のサイズ')}<div class="mb"><div class="szg stagger">
+    ${SIZES.map(([k,l],i)=>`<button class="btn btn-line szb" style="--i:${i}" data-a="sz" data-v="${k}"><b>${l}</b><span class="num">${it.ask?'時価':yen(sizePrice(it,k))}</span></button>`).join('')}</div></div>
+    <div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button></div>`);
+}
+
+function voidAsk(x){
+  confirmBox(`No.${saleNo(x)}（${esc(x.table)}・${yen(x.total)}）の会計を取り消しますか？<br>履歴には「取り消し」として残り、売上の集計から外れます。取り消しは元に戻せません。`,
+        ()=>{x.voided=true;x.voidedAt=Date.now();if(done&&done.id===x.id)done=null;toast('会計を取り消しました');},'取り消す',true);}
 /* CSV */
 const csvCell=v=>{v=String(v??'');return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
 const csvJoin=rows=>rows.map(r=>r.map(csvCell).join(',')).join('\r\n')+'\r\n';
@@ -1649,7 +1888,7 @@ const fullTime=ts=>{const d=new Date(ts);return `${d.getFullYear()}/${pad(d.getM
 const stamp=()=>{const d=new Date();return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;};
 function detailCSV(){
   const rows=[['会計No','会計日時','テーブル','人数','入店時刻','品名','単価','定価','数量','小計','備考','価格の扱い','税区分','税率(%)','メニュー価格計','消費税','会計合計(税込)','お預かり','おつり',
-    '支払方法','割引(%)','サービス料(%)','サービス料(固定)','消費税相当割引','切り捨て割引','状態','取消日時']];
+    '支払方法','割引(%)','サービス料(%)','サービス料(固定)','消費税相当割引','切り捨て割引','状態','取消日時','メモ']];
   const adjAmt=(x,k)=>{const a=(x.adj||[]).find(a=>a.k===k);return a?a.amt:'';};
   const ml=m=>m==='excl'?'税抜':m==='incSub'?'サブ税率込':m==='incMain'?'標準税率込':'';
   S.sales.forEach((x,i)=>x.lines.forEach((l,j)=>{
@@ -1658,7 +1897,7 @@ function detailCSV(){
       f?ml(x.priceMode):'',f?(x.taxName||''):'',f?(x.taxRate??''):'',f?(x.sub??x.base??x.total):'',f?(x.tax??''):'',
       f?x.total:'',f?(x.payChange===false?'':x.paid):'',f?(x.payChange===false?'':x.change):'',
       f?(x.payMethod||''):'',f?adjAmt(x,'dpct'):'',f?adjAmt(x,'spct'):'',f?adjAmt(x,'sfix'):'',f?adjAmt(x,'dtax'):'',f?adjAmt(x,'dtrunc'):'',
-      x.voided?'取消':'有効',x.voided?fullTime(x.voidedAt):'']);
+      x.voided?'取消':'有効',x.voided?fullTime(x.voidedAt):'',l.memo||'']);
   }));
   return csvJoin(rows);
 }
@@ -1723,7 +1962,7 @@ function lastBackupText(){
   let ts=0; try{ts=+localStorage.getItem(KEY+'-lastbackup')||0;}catch(e){}
   return ts?'前回のバックアップ：'+fmtTime(ts):'まだバックアップしていません';
 }
-function resetTable(t){t.open=false;t.guests=0;t.start=0;t.lines=[];t.stack=[];}
+function resetTable(t){t.open=false;t.guests=0;t.start=0;t.lines=[];t.stack=[];t.slog=[];}
 
 /* ---------- 長押しで並べ替え（品目・テーブル・カテゴリ） ----------
    [data-rolist] の直下にある [data-roid] の行が対象。約0.4秒押したままにすると持ち上がり、上下に動かして離すと入れ替わる。
@@ -2189,7 +2428,7 @@ document.addEventListener('click',e=>{
   if(b.closest('#ov')&&!modalOpen())return;
   const a=b.dataset.a, id=b.dataset.id, t=curT();
   switch(a){
-    case 'tab': view={name:b.dataset.v}; break;
+    case 'tab': {const v=b.dataset.v; if(locked()&&LOCKED_TABS.includes(v)){openPin('unlock',{cb:()=>{view={name:v};render();}});return;} view={name:v}; break;}
     case 'table': {const tb=S.tables.find(x=>x.id===id);
       if(tb.open){view={name:'order',tid:id};curCat=0;} else {openGuests(id,true);return;} break;}
     case 'back': view={name:'tables'}; break;
@@ -2200,10 +2439,18 @@ document.addEventListener('click',e=>{
       const fin=()=>{done=null;render();};
       if(bn&&!RM){bn.animate([{opacity:1,height:bn.offsetHeight+'px'},{opacity:0,height:'0px',paddingTop:'0px'}],{duration:260,easing:'ease-in',fill:'forwards'}).finished.then(fin,fin);} else fin(); return;}
     case 'add': {const it=S.items.find(i=>i.id===id);
+      if(it&&it.sizes){openSize(id);return;}
       if(it&&it.ask){openPrice({mode:'add',iid:id});return;}
       const from=b.getBoundingClientRect();
       const r=addItem(t,id); if(!r)return;
       fxLine={key:r.key,kind:r.existed?'bump':'new'}; save(); render(); flyChip(from,it.name,r.key); buzz(); return;}
+    case 'sz': {const it=S.items.find(i=>i.id===sizeIid); if(!it||!t)return;
+      const k=b.dataset.v, lab=(SIZES.find(s=>s[0]===k)||[])[1]||'';
+      if(it.ask){openPrice({mode:'add',iid:it.id,size:lab,base:sizePrice(it,k)});return;}
+      const r=addItem(t,it.id,null,lab); if(!r)return;
+      fxLine={key:r.key,kind:r.existed?'bump':'new'}; save(); closeModal(); buzz(); break;}
+    case 'srv': {const tb=S.tables.find(x=>x.id===b.dataset.t); if(!tb)return; serveLine(tb,id); save(); buzz(); break;}
+    case 'srvundo': {const tb=S.tables.find(x=>x.id===b.dataset.t); if(!tb)return; unserve(tb,id); save(); toast('未提供に戻しました'); break;}
     case 'inc': incLine(t,id); fxLine={key:id,kind:'bump'}; save(); break;
     case 'lprice': openPrice({mode:'line',key:id}); return;
     case 'pp': {const v=b.dataset.v,base=priceCtx.base;
@@ -2212,9 +2459,18 @@ document.addEventListener('click',e=>{
       v=/^[-−]/.test(v)?v.replace(/^[-−]+/,''):'-'+v; inp.value=v; markNeg(inp); inp.focus(); return;}
     case 'pok': {const raw=$('pval').value.replace(/−/g,'-').replace(/[^\d-]/g,''),p=parseInt(raw);
       if(isNaN(p)){toast('価格を数字で入力してください');return;}
-      if(priceCtx.mode==='add'){const r=addItem(t,priceCtx.iid,p);if(r)fxLine={key:r.key,kind:r.existed?'bump':'new'};}
-      else{const nk=repriceLine(t,priceCtx.key,p);if(nk)fxLine={key:nk,kind:'bump'};}
+      if(priceCtx.mode==='add'){const r=addItem(t,priceCtx.iid,p,priceCtx.size);if(r)fxLine={key:r.key,kind:r.existed?'bump':'new'};}
+      else{const nk=editLine(t,priceCtx.key,p,($('pmemo')||{}).value||'');if(nk)fxLine={key:nk,kind:'bump'};}
       priceCtx=null; save(); closeModal(); break;}
+    case 'pk': pinKey(b.dataset.v); return;
+    case 'pinforgot': openPinForgot(); return;
+    case 'pintelok': {const v=(($('pintel')||{}).value||'').replace(/[^\d]/g,''), tel=telDigits();
+      if(!tel||v!==tel){const e=$('pinerr');if(e)e.textContent='電話番号が店舗情報と一致しません';buzz();return;}
+      S.pin=''; setUnlocked(false); save(); closeModal(); toast('暗証番号を解除しました'); break;}
+    case 'pinset': if(telDigits().length<6){toast('先に「店舗情報」に電話番号を入れてください（忘れたときの解除に使います）');return;} openPin('set1'); return;
+    case 'pinchg': openPin('check',{next:'set'}); return;
+    case 'pindel': openPin('check',{next:'del'}); return;
+    case 'pinlock': setUnlocked(false); view={name:'tables'}; toast('ロックしました'); break;
     case 'csvd': saveCSV(`売上明細_${stamp()}.csv`,detailCSV()); return;
     case 'csvi': saveCSV(`品目別_${stamp()}.csv`,itemCSV()); return;
     case 'bexp': exportBackup(); setTimeout(render,300); return;
@@ -2225,11 +2481,11 @@ document.addEventListener('click',e=>{
     case 'undo': {const k=t.stack[t.stack.length-1]; if(!k)return; const l=t.lines.find(x=>x.key===k);
       const go=()=>{t.stack.pop();decItem(t,k,true);save();render();};
       if(l&&l.qty<=1){leaveLine(k,go);return;} fxLine={key:k,kind:'bump'}; go(); return;}
-    case 'clear': confirmBox(`${esc(t.name)} の注文をすべて消去しますか？`,()=>{t.lines=[];t.stack=[];},'消去する',true); return;
+    case 'clear': confirmBox(`${esc(t.name)} の注文をすべて消去しますか？`,()=>{t.lines=[];t.stack=[];t.slog=[];},'消去する',true); return;
     case 'vacate': confirmBox(`${esc(t.name)} を空席に戻しますか？`,()=>{resetTable(t);view={name:'tables'};},'空席に戻す'); return;
     case 'guests': openGuests(t.id,false); return;
     case 'g': {const tb=S.tables.find(x=>x.id===pendingT);
-      if(!tb.open){tb.open=true;tb.start=Date.now();tb.lines=[];tb.stack=[];curCat=0;}
+      if(!tb.open){tb.open=true;tb.start=Date.now();tb.lines=[];tb.stack=[];tb.slog=[];curCat=0;}
       tb.guests=+b.dataset.n; save(); closeModal(); view={name:'order',tid:tb.id}; break;}
     case 'pay': openPay(); return;
     case 'pq': {const v=b.dataset.v,inp=$('paid');
@@ -2244,14 +2500,17 @@ document.addEventListener('click',e=>{
       const sale={id:uid(),no:nextSaleNo(now),table:t.name,guests:t.guests,start:t.start,end:now,
         taxKind:bb.kind,taxName:bb.name,taxRate:bb.rate,priceMode:bb.mode,sub:bb.sub,base:bb.base,pre:bb.pre,tax:bb.tax,
         adj:bb.adj.map(a=>({k:a.k,label:a.label,note:a.note,amt:a.amt,after:!!a.after})),payMethod:m.name,payChange:!cashless,
-        lines:t.lines.map(l=>({name:l.name,price:l.price,base:l.base,qty:l.qty})),total:tot,paid:p,change:p-tot};
+        /* 品名はサイズ付きで残す（元の居酒屋レジや集計でもそのまま読める）。メモと提供の記録も一緒に残す */
+        lines:t.lines.map(l=>({name:lineLabel(l),price:l.price,base:l.base,qty:l.qty,...(l.memo?{memo:l.memo}:{})})),
+        ...(t.slog.length?{slog:t.slog.map(({id,at,name,qty,memo})=>({id,at,name,qty,memo}))}:{}),total:tot,paid:p,change:p-tot};
       S.sales.push(sale);
       resetTable(t); save(); closeModal(); done={id:sale.id,fresh:true}; view={name:'tables'}; render();
       const sc=document.querySelector('.scroll'); if(sc)sc.scrollTop=0; buzz(); return;}
     case 'rcpt': case 'ryo': {const x=S.sales.find(s=>s.id===id); if(x)openReceipt(x,a==='ryo'?'ryo':'rcpt'); return;}
     case 'void': {const x=S.sales.find(s=>s.id===id); if(!x||x.voided)return;
-      confirmBox(`No.${saleNo(x)}（${esc(x.table)}・${yen(x.total)}）の会計を取り消しますか？<br>履歴には「取り消し」として残り、売上の集計から外れます。取り消しは元に戻せません。`,
-        ()=>{x.voided=true;x.voidedAt=Date.now();if(done&&done.id===x.id)done=null;toast('会計を取り消しました');},'取り消す',true); return;}
+      if(locked()){openPin('unlock',{cb:()=>{render();voidAsk(x);}});return;}
+      voidAsk(x); return;}
+
     case 'pmnew': openPayMethod(null); return;
     case 'pmedit': openPayMethod(id); return;
     case 'pmsave': {const name=$('pmname').value.trim(); if(!name){toast('支払い方法の名前を入力してください');return;}
@@ -2262,6 +2521,7 @@ document.addEventListener('click',e=>{
     case 'pmdel': {const m=S.pay.methods.find(x=>x.id===editId); if(!m||S.pay.methods.length<2)return;
       confirmBox(`支払い方法「${esc(m.name)}」を削除しますか？<br>これまでの会計の記録はそのまま残ります。`,()=>{S.pay.methods=S.pay.methods.filter(x=>x.id!==m.id);if(S.pay.def===m.id)S.pay.def=S.pay.methods[0].id;},'削除する',true); return;}
     case 'rshare': shareReceipt(); return;
+    case 'rimg': shareReceiptImage(); return;
     case 'rsample': openReceipt(sampleSale(),b.dataset.v); return;
     case 'logopick': {const f=$('logofile'); if(f){f.value='';f.click();} return;}
     case 'logodel': S.shop.logo=''; logoImg=null; save(); break;
@@ -2269,7 +2529,7 @@ document.addEventListener('click',e=>{
     case 'cok': {const fn=confirmFn;confirmFn=null;closeModal();if(fn)fn();save();break;}
     case 'inew': openItem(null,b.dataset.c); return;
     case 'icopy': {const it=S.items.find(i=>i.id===editId); if(!it)return;
-      clip={name:it.name,price:it.price,ask:!!it.ask}; closeModal(); toast('コピーしました。貼り付け先のカテゴリを選んでください'); break;}
+      clip={name:it.name,price:it.price,ask:!!it.ask,...(it.sizes?{sizes:{...it.sizes}}:{})}; closeModal(); toast('コピーしました。貼り付け先のカテゴリを選んでください'); break;}
     case 'paste': pasteItem(b.dataset.c); return;
     case 'clipclear': clip=null; break;
     case 'cnew': openCatName(null); return;
@@ -2300,8 +2560,12 @@ document.addEventListener('click',e=>{
       if(!name){toast('品名を入力してください');return;}
       if(isNaN(price)){toast('価格を数字で入力してください');return;}
       const cat=$('icat').value, ask=$('iask').checked;
-      if(editId){Object.assign(S.items.find(i=>i.id===editId),{name,price,cat,ask});}
-      else S.items.push({id:uid(),name,price,cat,ask});
+      let sizes=null;
+      if($('isz').checked){const num=v=>parseInt(z2h(v).replace(/−/g,'-').replace(/[^\d-]/g,''));const ss=num($('isz-s').value),sl=num($('isz-l').value);
+        if(isNaN(ss)||isNaN(sl)){toast('小と大の価格を数字で入力してください');return;}
+        sizes={s:ss,l:sl};}
+      if(editId){const it=S.items.find(i=>i.id===editId);Object.assign(it,{name,price,cat,ask});if(sizes)it.sizes=sizes;else delete it.sizes;}
+      else S.items.push({id:uid(),name,price,cat,ask,...(sizes?{sizes}:{})});
       save(); closeModal(); toast('保存しました'); break;}
     case 'idel': {const it=S.items.find(i=>i.id===editId);
       confirmBox(`「${esc(it.name)}」を削除しますか？`,()=>{S.items=S.items.filter(i=>i.id!==editId);},'削除する',true); return;}
@@ -2309,7 +2573,7 @@ document.addEventListener('click',e=>{
     case 'tren': openTableName(id); return;
     case 'tsave': {const name=$('tname').value.trim(); if(!name){toast('テーブル名を入力してください');return;}
       if(editId)S.tables.find(x=>x.id===editId).name=name;
-      else S.tables.push({id:uid(),name,open:false,guests:0,start:0,lines:[],stack:[]});
+      else S.tables.push({id:uid(),name,open:false,guests:0,start:0,lines:[],stack:[],slog:[]});
       save(); closeModal(); break;}
     case 'tdel': {const tb=S.tables.find(x=>x.id===id);
       confirmBox(`テーブル「${esc(tb.name)}」を削除しますか？`,()=>{S.tables=S.tables.filter(x=>x.id!==id);},'削除する',true); return;}
@@ -2321,6 +2585,8 @@ document.addEventListener('click',e=>{
 document.addEventListener('input',e=>{if(e.target.id==='sy-name'){SY.name=e.target.value.trim().slice(0,16);saveSync();}if(e.target.id==='iprice'||e.target.id==='pval')markNeg(e.target);if(e.target.id==='paid')updChg();if(e.target.id==='txtin')updTextPrev();});
 document.addEventListener('change',e=>{
   const el=e.target;
+  if(el.dataset.opt){S.opt[el.dataset.opt]=el.checked;save();render();toast('保存しました');return;}
+  if(el.id==='isz'){const bx=$('iszbox');if(bx){bx.hidden=!el.checked;if(el.checked&&!$('isz-s').value){const p=parseInt($('iprice').value)||0;$('isz-s').value=p;$('isz-l').value=p;}}return;}
   if(el.hasAttribute('data-pk')){payKind=el.value;updPay();return;}
   if(el.hasAttribute('data-pm')){payMethod=el.value;updPay();return;}
   if(el.dataset.psel){paySel[el.dataset.psel]=el.checked;updPay();return;}
@@ -2357,10 +2623,10 @@ document.addEventListener('change',e=>{
   }else S.tax[k]=el.value;
   save(); render(); toast('税の設定を保存しました');
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modalOpen())closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modalOpen()){closeModal();return;}if(pinSt&&$('pindots')&&modalOpen()){if(/^\d$/.test(e.key)){pinKey(e.key);e.preventDefault();}else if(e.key==='Backspace'){pinKey('del');e.preventDefault();}}});
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});}catch(e){}
 setInterval(()=>{const c=$('clock');if(c)c.innerHTML=nowDT();},10000);
-setInterval(()=>{if(!$('ov').classList.contains('show')&&(view.name==='tables'||view.name==='order'))render();},30000);
+setInterval(()=>{if(!$('ov').classList.contains('show')&&(view.name==='tables'||view.name==='order'||view.name==='serve'))render();},30000);
 render();
 </script>
 
