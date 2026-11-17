@@ -534,6 +534,42 @@ button.row:active{background:var(--key-bg)}
 .pinpad .pinf{font-size:14px;line-height:1.3;white-space:normal}
 @media (min-width:768px){.hcols .srvrow{min-height:72px}}
 
+/* ---------- 伝票のチェック・経過時間・持ち帰り・列数・操作 ---------- */
+.line.hasck{gap:8px}
+.line.hasck .lsub{width:72px}
+.lck,.sck{flex:0 0 auto;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;color:transparent;box-shadow:inset 0 0 0 2px var(--text-2);transition:background-color .2s,color .2s}
+.lck .ic,.sck .ic{width:20px;height:20px}
+.lck.on,.sck.on{background:var(--success);color:#fff;box-shadow:none}
+.line.served{background:var(--success-bg)}
+.line.served .ln>span:first-child{color:var(--text-2)}
+.svst.wait{color:var(--key)}
+.svst.late{color:var(--error)}
+.tag.tko{background:var(--success-bg);color:var(--success);box-shadow:inset 0 0 0 1px var(--success)}
+.srvrow .sage{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;font-weight:700;color:var(--key);font-size:16px}
+.srvrow.late .sage{color:var(--error)}
+.srvrow.done{background:var(--success-bg)}
+.srvrow.done b{color:var(--text-2)}
+.srvrow .grow small .srvt{min-width:0;padding:0 8px;font-size:14px}
+.slogacc{margin-top:16px}
+.colsw{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding-top:12px}
+.colsw .seg{margin:0;min-width:200px}
+.colsw .seg span{min-height:36px}
+.tgrid.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.tgrid.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tgrid.c1{grid-template-columns:1fr}
+.tgrid.c1 .tcard{min-height:84px}
+.tmerged{display:block;font-size:14px;font-weight:700;color:var(--key);word-break:break-all}
+.gmore{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.gmore>.btn{min-height:56px;min-width:56px;padding:0}
+.gmore>.btn-fill{flex:1 1 140px;padding:0 12px}
+.gnum{display:flex;align-items:center;gap:4px;font-size:18px}
+.gnum input{width:72px;min-height:56px;text-align:center;font-size:22px;font-weight:700;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--border);background:var(--surface);color:var(--text);border:0}
+.mvgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.mvgrid .btn{min-height:56px;font-size:18px}
+.row[disabled]{opacity:.45}
+.staffpill{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 10px;margin-left:4px;border-radius:999px;background:var(--key-bg);color:var(--key);font-size:14px;font-weight:700}
+@media (max-width:440px){.staffpill .t{display:none}.staffpill{padding:0 12px}}
+
 /* ---------- 端末連携（クラウド） ---------- */
 .cwarn-w{padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
 .cwarn-w:empty{display:none}
@@ -675,6 +711,12 @@ const IC={
   msg:'<path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>',
   bksp:'<path d="M10 5a2 2 0 0 0-1.344.519l-6.328 5.74a1 1 0 0 0 0 1.481l6.328 5.741A2 2 0 0 0 10 19h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/><path d="m12 9 6 6"/><path d="m18 9-6 6"/>',
   cloud:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',
+  move:'<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>',
+  merge:'<path d="m8 6 4-4 4 4"/><path d="M12 2v10.3a4 4 0 0 1-1.172 2.872L4 22"/><path d="m20 22-5-5"/>',
+  bell:'<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>',
+  play:'<path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/>',
+  more:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+  badge:'<path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/>',
   cloudoff:'<path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"/>',
 };
 const ic=(n,s=20,cls='')=>`<svg class="ic ${cls}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
@@ -726,9 +768,9 @@ function normalize(D){
   /* 伝票の行：size（小・並・大）、memo（メモ）、sv（提供済みの数）、wt（提供待ちが始まった時刻）。
      テーブルの slog は提供済みの記録（会計すると会計の記録へ移る）。
      この機能より前に入っていた注文は、提供済みとして扱う */
-  D.tables.forEach(t=>{t.lines=t.lines||[];t.stack=t.stack||[];t.slog=Array.isArray(t.slog)?t.slog:[];let fix=false;
+  D.tables.forEach(t=>{t.lines=t.lines||[];t.stack=t.stack||[];t.slog=Array.isArray(t.slog)?t.slog:[];t.merged=Array.isArray(t.merged)?t.merged:[];let fix=false;
     t.lines.forEach(l=>{if(!l.key){l.key=l.iid+'@'+l.price;fix=true;}if(l.base==null)l.base=l.price;
-      l.size=l.size||'';l.memo=l.memo||'';if(l.sv==null)l.sv=l.qty;l.sv=Math.max(0,Math.min(l.qty,+l.sv||0));if(!l.wt)l.wt=t.start||Date.now();});
+      l.size=l.size||'';l.memo=l.memo||'';l.rk=l.rk==='sub'?'sub':'main';if(!l.at)l.at=l.wt||t.start||Date.now();if(l.sv==null)l.sv=l.qty;l.sv=Math.max(0,Math.min(l.qty,+l.sv||0));if(!l.wt)l.wt=t.start||Date.now();});
     if(fix)t.stack=[];});
   D.opt=Object.assign({serve:true},D.opt||{});
   D.pin=typeof D.pin==='string'?D.pin:'';
@@ -779,7 +821,11 @@ function calcBill(base,kind){
          ③ 消費税相当割引（消費税の前） ④ 消費税を計算する ⑤ 消費税相当割引（消費税の後）
          ⑥ 最後に切り捨て割引をかけ、消費税を計算し直す。％で出た1円未満は消費税と同じ端数処理 */
 const itemMode=k=>({dpct:S.disc.pctMode,dtrunc:S.disc.truncMode,dtax:S.disc.taxMode,spct:S.svc.pctMode,sfix:S.svc.fixedMode})[k]||'ask';
+/* 税率の決め方：item＝品目ごと（店内と持ち帰りが混ざっていれば分けて計算）、main／sub＝会計全体をその税率にする */
+const lineRk=l=>l.rk==='sub'?'sub':'main';
+const hasMix=t=>new Set(t.lines.map(lineRk)).size>1;
 function calcFull(t,kind,sel){
+  if(kind==='item'){if(hasMix(t))return calcMixed(t,sel);kind=t.lines.length&&t.lines.every(l=>lineRk(l)==='sub')?'sub':'main';}
   const sub=total(t), g=t.guests||0, D=S.disc, V=S.svc, adj=[], on={};
   const use=(grp,k,val)=>(on[k]=val>0&&(itemMode(k)==='always'||!!(sel&&sel[k])));
   let base=sub;
@@ -800,7 +846,36 @@ function calcFull(t,kind,sel){
     if(a){adj.push({k:'dtrunc',label:D.truncLabel||'端数値引き',note:`${yen(u)}未満切り捨て`,amt:a,after:true}); tot=t2; tax=rnd(tot*b.rate/(100+b.rate));}}
   return {...b, sub, pre:b.total, total:tot, tax, adj, on};
 }
-const billT=(t,k='main')=>calcFull(t,k,null);
+/* 店内と持ち帰りが混ざった会計。％の割引・サービス料は金額の比で両方に分け、固定のサービス料は店内に入れる。
+   消費税は税率ごとに計算する（インボイスの「税率ごとに区分した合計と消費税」）。切り捨て割引は店内の分から引く */
+function calcMixed(t,sel){
+  const sub=total(t), g=t.guests||0, D=S.disc, V=S.svc, adj=[], on={};
+  const use=(k,val)=>(on[k]=val>0&&(itemMode(k)==='always'||!!(sel&&sel[k])));
+  const gs={main:0,sub:0}; t.lines.forEach(l=>gs[lineRk(l)]+=l.price*l.qty);
+  const base={...gs};
+  const split=a=>{const tt=gs.main+gs.sub;if(!tt)return {main:a,sub:0};const s2=Math.round(a*gs.sub/tt);return {main:a-s2,sub:s2};};
+  const addSplit=a=>{const p=split(a);base.main+=p.main;base.sub+=p.sub;};
+  if(use('dpct',D.pct)){const a=-rnd(sub*D.pct/100); if(a){adj.push({k:'dpct',label:D.pctLabel||'割引',note:pct(D.pct),amt:a}); addSplit(a);}}
+  if(use('spct',V.pct)){const a=rnd(sub*V.pct/100); if(a){adj.push({k:'spct',label:V.pctLabel||'サービス料',note:pct(V.pct),amt:a}); addSplit(a);}}
+  if(use('sfix',V.fixed)){const per=V.fixedPer==='guest', a=per?V.fixed*g:V.fixed;
+    if(a){adj.push({k:'sfix',label:V.fixedLabel||'席料',note:per?`${yen(V.fixed)}×${g}名`:'',amt:a}); base.main+=a;}}
+  const taxOn=use('dtax',D.taxOn?1:0);
+  if(taxOn&&D.taxWhen!=='after'){let s0=0;['main','sub'].forEach(k=>{const t0=calcBill(base[k],k).tax;base[k]-=t0;s0+=t0;});
+    if(s0)adj.push({k:'dtax',label:D.taxLabel||'消費税相当割引',note:'消費税の前',amt:-s0});}
+  const G=['main','sub'].map(k=>calcBill(base[k],k));
+  const pre=G[0].total+G[1].total;
+  if(taxOn&&D.taxWhen==='after'){let s0=0;G.forEach(x=>{if(x.tax){s0+=x.tax;x.total-=x.tax;x.tax=rnd(x.total*x.rate/(100+x.rate));}});
+    if(s0)adj.push({k:'dtax',label:D.taxLabel||'消費税相当割引',note:'消費税の後',amt:-s0,after:true});}
+  let tot=G[0].total+G[1].total;
+  if(use('dtrunc',D.digits)&&tot>0){const u=10**D.digits, t2=Math.floor(tot/u)*u, a=t2-tot;
+    if(a){adj.push({k:'dtrunc',label:D.truncLabel||'端数値引き',note:`${yen(u)}未満切り捨て`,amt:a,after:true});
+      const x=G[0].total>=-a?G[0]:G[1]; x.total+=a; x.tax=rnd(x.total*x.rate/(100+x.rate)); tot=t2;}}
+  return {kind:'mix',name:`${S.tax.mainName}・${S.tax.subName}`,rate:null,mode:S.tax.mode,base:base.main+base.sub,sub,pre,total:tot,
+    tax:G[0].tax+G[1].tax,adj,on,groups:G.map(x=>({kind:x.kind,name:x.name,rate:x.rate,base:x.base,total:x.total,tax:x.tax}))};
+}
+/* 税率の表示（混在なら「店内10%・持ち帰り8%」） */
+const rateTxt=b=>b.groups?b.groups.map(x=>`${x.name}${pct(x.rate)}`).join('・'):`${b.name} ${pct(b.rate)}`;
+const billT=(t,k='item')=>calcFull(t,k,null);
 const modeLabel=m=>m==='excl'?'税抜':m==='incSub'?`${S.tax.subName}${pct(S.tax.sub)}込`:`${S.tax.mainName}${pct(S.tax.main)}込`;
 const curT=()=>S.tables.find(t=>t.id===view.tid);
 const mins=t=>Math.max(0,Math.floor((Date.now()-t.start)/60000));
@@ -812,14 +887,21 @@ const nowHM=()=>{const d=new Date();return `${pad(d.getHours())}:${pad(d.getMinu
 const nowDT=()=>{const d=new Date();return `${d.getMonth()+1}/${d.getDate()}<span class="wd">(${'日月火水木金土'[d.getDay()]})</span> ${pad(d.getHours())}:${pad(d.getMinutes())}`};
 
 /* ---------- 演出の状態 ---------- */
-const TABS=[['tables','テーブル','grid'],['serve','提供','listchecks'],['history','売上','chart'],['settings','設定','settings']];
+const TABS=[['tables','テーブル','grid'],['serve','履歴','listchecks'],['history','売上','chart'],['settings','設定','settings']];
+/* この端末だけの設定（共有データには入れない）：スタッフ用、テーブルの列数、注文の効果音 */
+const DEVK=KEY+'-device';
+const DEV={staff:false,cols:3,snd:true,sndType:'piroriro'};
+try{Object.assign(DEV,JSON.parse(localStorage.getItem(DEVK))||{});}catch(e){}
+if(![1,2,3].includes(+DEV.cols))DEV.cols=3;
+function saveDev(){try{localStorage.setItem(DEVK,JSON.stringify(DEV))}catch(e){}}
 /* 暗証番号のロック：売上・設定・会計の取り消しだけを守る。解除はこのタブを閉じるか「ロックする」まで続く */
 let unlocked=false; try{unlocked=sessionStorage.getItem(KEY+'-unlocked')==='1';}catch(e){}
 const locked=()=>!!S.pin&&!unlocked&&SY.role!=='sub';
 const LOCKED_TABS=['history','settings'];
 function setUnlocked(v){unlocked=v;try{v?sessionStorage.setItem(KEY+'-unlocked','1'):sessionStorage.removeItem(KEY+'-unlocked');}catch(e){}}
 /* 見える下のタブ：提供チェックを使わないときは「提供」を出さない。サブは売上を出さない */
-const visTabs=()=>TABS.filter(x=>!(SY.role==='sub'&&x[0]==='history')&&!(x[0]==='serve'&&!S.opt.serve));
+/* スタッフ用の端末は「テーブル」と「履歴」だけ */
+const visTabs=()=>TABS.filter(x=>!(SY.role==='sub'&&x[0]==='history')&&!(x[0]==='serve'&&!S.opt.serve)&&!(DEV.staff&&(x[0]==='history'||x[0]==='settings')));
 let fxLine={key:null,kind:null};
 const roll={};
 let prevCatRect=null, tabJust=null;
@@ -829,7 +911,7 @@ let done=null;   // 会計完了バナー {id, fresh}
 function shell(body,v,enter){
   const label=TABS.find(x=>x[0]===v)[1];
   const head=view.sub&&!isTab?`<header class="nav"><button class="navbtn" data-a="subback" aria-label="設定に戻る">${ic('back',26)}設定</button><div class="navtitle"><b>${SUBS[view.sub]}</b></div><span class="navbtn right" aria-hidden="true" style="visibility:hidden">${ic('back',26)}設定</span></header>`
-    :`<header class="nav large"><h1 class="ltitle"><span class="tbadge" aria-hidden="true">${ic(TABS.find(x=>x[0]===v)[2],22)}</span>${label}</h1>${synChip()}<span class="clock num">${ic('clock',18)}<span id="clock">${nowDT()}</span></span></header>`;
+    :`<header class="nav large"><h1 class="ltitle"><span class="tbadge" aria-hidden="true">${ic(TABS.find(x=>x[0]===v)[2],22)}</span>${label}</h1>${synChip()}${DEV.staff?`<button class="staffpill" data-a="staffoff" aria-label="スタッフ用を解除する">${ic('badge',16)}<span class="t">スタッフ用</span></button>`:''}<span class="clock num">${ic('clock',18)}<span id="clock">${nowDT()}</span></span></header>`;
   if(isTab&&v==='settings'){
     const sub=view.sub||(SY.role==='sub'?'sync':'shop');
     return `<header class="nav large"><h1 class="ltitle"><span class="tbadge" aria-hidden="true">${ic('settings',22)}</span>設定</h1>${synChip()}<span class="clock num">${ic('clock',18)}<span id="clock">${nowDT()}</span></span></header>
@@ -868,35 +950,34 @@ function tablesView(enter){
   const guests=busy.reduce((a,t)=>a+(t.guests||0),0);
   return `${doneBanner()}${CL.on?`<div class="cwarn-w">${cloudWarn()}</div>`:''}<div class="sec" style="padding-block:0">
   <div class="summary"><div><small>使用中</small><b class="num">${busy.length} / ${S.tables.length}</b></div><div><small>客数</small><b class="num">${guests}名</b></div><div><small>未会計</small><b class="num" data-roll="${unpaid}" data-rid="unpaid">${yen(unpaid)}</b></div></div>
-  <div class="tgrid ${enter?'stagger':''}">${S.tables.map((t,i)=>`<button class="tcard ${t.open?'busy':''}" style="--i:${i}" data-a="table" data-id="${t.id}" aria-label="${esc(t.name)}、${t.open?'使用中':'空席'}">
-    <span class="tname">${esc(t.name)}</span>
+  ${isTab?'':`<div class="colsw"><span class="muted">表示</span><div class="seg" role="radiogroup" aria-label="テーブルの列数">${[3,2,1].map(n=>`<label><input type="radio" name="cols" value="${n}" data-cols ${DEV.cols===n?'checked':''}><span>${n}列</span></label>`).join('')}</div></div>`}
+  <div class="tgrid ${enter?'stagger':''} ${isTab?'':'c'+DEV.cols}">${S.tables.map((t,i)=>`<button class="tcard ${t.open?'busy':''}" style="--i:${i}" data-a="table" data-id="${t.id}" aria-label="${esc(t.name)}、${t.open?'使用中':'空席'}">
+    <span class="tname">${esc(t.name)}${(t.merged||[]).length?`<small class="tmerged">＋${esc(t.merged.join('＋'))}</small>`:''}</span>
     ${t.open?`<span class="chip">${ic('users',14)}${t.guests?t.guests+'名':'使用中'}</span><span class="tstate num">${ic('clock',14)}${fmtMin(mins(t))}</span><span class="tamt num">${yen(billT(t).total)}</span>`
       :`<span class="tstate">${ic('plus',16)}空席</span>`}
   </button>`).join('')}</div></div>`;
 }
-/* 提供：まだ出していない注文（待ちの長い順）と、今日提供した記録。iPad では左右に並べる */
+/* 履歴：注文の一覧（チェック・品名・経過時間）。チェックすると提供済みになる。
+   ふつうの端末：チェックした注文も一覧に残し、チェック済みの表示にする（もう一度押すと戻せる）。
+   スタッフ用の端末：チェックした注文は一覧から消える。
+   下に今日提供した記録（会計済みの分も含む）を折りたたんで出す */
 function serveView(enter){
-  const wait=[];
-  S.tables.forEach(t=>{if(t.open)t.lines.forEach(l=>{const n=unservedOf(l);if(n)wait.push({t,l,n});});});
-  wait.sort((a,b)=>(a.l.wt||0)-(b.l.wt||0));
-  const log=servedToday(), now=Date.now();
-  const ago=ts=>{const m=Math.max(0,Math.floor((now-ts)/60000));return m<1?'たった今':fmtMin(m)+'前';};
-  return `<div class="sec ${enter?'grow-in':''}"><div class="hcols"><section>
-    <h2>未提供 <span class="muted num">${wait.reduce((a,w)=>a+w.n,0)}点</span></h2>
-    <div class="group">${wait.length?wait.map(({t,l,n})=>{const m=Math.floor((now-(l.wt||now))/60000);
-      return `<div class="srvrow ${m>=15?'late':''}"><span class="srvt">${esc(t.name)}</span>
-      <span class="grow"><b>${esc(lineLabel(l))}</b>${n>1?` <b class="num">×${n}</b>`:''}${l.memo?`<span class="lmemo">${ic('msg',14)}${esc(l.memo)}</span>`:''}<small class="muted num">${ic('clock',14)}${ago(l.wt||now)}</small></span>
-      <button class="btn btn-fill btn-sm" data-a="srv" data-t="${t.id}" data-id="${esc(l.key)}" aria-label="${esc(t.name)}の${esc(lineLabel(l))}を提供済みにする">${ic('check',18)}提供</button></div>`;}).join('')
-      :`<div class="empty">${ic('ccheck',40)}まだ出していない注文はありません。</div>`}</div>
-    <p class="note">「提供」を押すと${isTab?'右':'下'}の記録へ移ります。15分以上待っている注文は赤で表示します。</p>
-    </section><section>
-    <h2>提供済み（今日） <span class="muted num">${log.reduce((a,e)=>a+e.qty,0)}点</span></h2>
-    <div class="group">${log.length?log.map(e=>`<div class="srvrow done"><span class="srvt">${esc(e.table)}</span>
-      <span class="grow"><b>${esc(e.name)}</b>${e.qty>1?` <b class="num">×${e.qty}</b>`:''}${e.memo?`<span class="lmemo">${ic('msg',14)}${esc(e.memo)}</span>`:''}<small class="muted num">${pad(new Date(e.at).getHours())}:${pad(new Date(e.at).getMinutes())} 提供${e.live?'':e.voided?'・会計取り消し':'・会計済み'}</small></span>
-      ${e.live?`<button class="btn btn-text btn-sm" data-a="srvundo" data-t="${e.tid}" data-id="${e.id}" aria-label="${esc(e.table)}の${esc(e.name)}を未提供に戻す">${ic('undo',18)}戻す</button>`:''}</div>`).join('')
-      :'<div class="empty">今日はまだ提供した注文がありません。</div>'}</div>
-    <p class="note">会計したテーブルの分も今日のうちはここに残ります。会計前なら「戻す」で未提供に戻せます。</p>
-    </section></div></div>`;
+  const rows=[];
+  S.tables.forEach(t=>{if(t.open)t.lines.forEach(l=>{const n=unservedOf(l);if(n||!DEV.staff)rows.push({t,l,n});});});
+  rows.sort((a,b)=>(!a.n-!b.n)||((a.n?a.l.wt:a.l.at)||0)-((b.n?b.l.wt:b.l.at)||0));
+  const wait=rows.filter(r=>r.n), log=servedToday(), now=Date.now();
+  const age=ts=>fmtMin(Math.max(0,Math.floor((now-ts)/60000)));
+  return `<div class="sec ${enter?'grow-in':''}">
+    <h2>注文 <span class="muted num">未提供 ${wait.reduce((a,w)=>a+w.n,0)}点</span></h2>
+    <div class="group">${rows.length?rows.map(({t,l,n})=>{const m=Math.floor((now-(l.wt||now))/60000);
+      return `<div class="srvrow ${n?(m>=15?'late':''):'done'}">
+      <button class="sck ${n?'':'on'}" data-a="${n?'srv':'srvback'}" data-t="${t.id}" data-id="${esc(l.key)}" aria-pressed="${!n}" aria-label="${esc(t.name)}の${esc(lineLabel(l))}を${n?'提供済みにする':'未提供に戻す'}">${ic('check',22)}</button>
+      <span class="grow"><b>${esc(lineLabel(l))}</b>${(n||l.qty)>1?` <b class="num">×${n||l.qty}</b>`:''}${lineRk(l)==='sub'?`<span class="tag tko">${esc(S.tax.subName)}</span>`:''}${l.memo?`<span class="lmemo">${ic('msg',14)}${esc(l.memo)}</span>`:''}<small class="muted"><span class="srvt">${esc(t.name)}</span></small></span>
+      <span class="sage num">${n?`${ic('clock',16)}${age(l.wt||now)}`:`<span class="muted">提供済み</span>`}</span></div>`;}).join('')
+      :`<div class="empty">${ic('ccheck',40)}${DEV.staff?'まだ出していない注文はありません。':'使用中のテーブルの注文はありません。'}</div>`}</div>
+    <p class="note">左の丸を押すと提供済みになります。${DEV.staff?'提供済みにした注文は一覧から消えます。':'提供済みの注文は一覧に残り、もう一度押すと未提供に戻せます。'}15分以上待っている注文は赤で表示します。</p>
+    ${DEV.staff?'':`<details class="acc slogacc"><summary><span class="acct">今日の提供記録</span><span class="accv num">${log.reduce((a,e)=>a+e.qty,0)}点</span>${ic('chev',20,'accc')}</summary><div class="accb"><div class="group">${log.length?log.map(e=>`<div class="srvrow done"><span class="grow"><b>${esc(e.name)}</b>${e.qty>1?` <b class="num">×${e.qty}</b>`:''}${e.memo?`<span class="lmemo">${ic('msg',14)}${esc(e.memo)}</span>`:''}<small class="muted"><span class="srvt">${esc(e.table)}</span> ${pad(new Date(e.at).getHours())}:${pad(new Date(e.at).getMinutes())} 提供${e.live?'':e.voided?'・会計取り消し':'・会計済み'}</small></span></div>`).join(''):'<div class="empty">今日はまだ提供した注文がありません。</div>'}</div></div></details>`}
+  </div>`;
 }
 function orderView(t,enter,catEnter){
   if(!(curCat<S.cats.length))curCat=0;
@@ -909,19 +990,21 @@ function orderView(t,enter,catEnter){
     ${t.lines.length?`<button class="btn btn-fill btn-lg" data-a="pay">${ic('banknote',22)}会計</button>`:`<button class="btn btn-line" data-a="vacate">空席に戻す</button>`}</div>`;
   return `<div class="wrap ${enter}">
   <header class="nav"><button class="navbtn" data-a="back" aria-label="テーブルの一覧に戻る">${ic('back',26)}テーブル</button>
-    <div class="navtitle"><b>${esc(t.name)}</b><span class="num">${ic('users',14)}${t.guests?t.guests+'名':'人数未設定'}　${ic('clock',14)}${fmtMin(mins(t))}</span></div>
-    <button class="navbtn right" data-a="guests">${ic('users',20)}人数</button></header>
+    <div class="navtitle"><b>${esc(tableLabel(t))}</b><span class="num">${ic('users',14)}${t.guests?t.guests+'名':'人数未設定'}　${ic('clock',14)}${fmtMin(mins(t))}</span></div>
+    <button class="navbtn right" data-a="tops">${ic('more',22)}操作</button></header>
   <div class="split"><section class="ticket" aria-label="伝票">
   <div class="lines" data-keep="lines" aria-label="注文">${t.lines.length?t.lines.map(l=>{
       const cls=fxLine.key===l.key?(fxLine.kind==='new'?'is-new':'is-bump'):'';
-      const nm=lineLabel(l), un=unservedOf(l);
-      const sv=S.opt.serve?(un===0?`<span class="svst done">${ic('check',14)}提供済み</span>`:l.sv>0?`<span class="svst">提供 ${l.sv}/${l.qty}</span>`:''):'';
-      return `<div class="line ${cls}" data-k="${esc(l.key)}">
-      <button class="ln" data-a="lprice" data-id="${esc(l.key)}" aria-label="${esc(nm)}の価格とメモを変更"><span>${esc(nm)}${l.price!==l.base?`<span class="tag">${l.price===0?'サービス':'価格変更'}</span>`:''}</span>${l.memo?`<span class="lmemo">${ic('msg',14)}${esc(l.memo)}</span>`:''}<small class="num">${yen(l.price)}${l.price!==l.base?`（定価 ${yen(l.base)}）`:''}${sv}</small></button>
+      const nm=lineLabel(l), un=unservedOf(l), srv=S.opt.serve;
+      /* 経過時間：まだ出していない注文だけに出す。チェックすると消えて、行の色が変わる */
+      const sv=srv?(un===0?`<span class="svst done">${ic('check',14)}提供済み</span>`:`<span class="svst wait ${Math.floor((Date.now()-(l.wt||Date.now()))/60000)>=15?'late':''}">${ic('clock',14)}${fmtMin(Math.max(0,Math.floor((Date.now()-(l.wt||Date.now()))/60000)))}${l.sv>0?`・残り${un}`:''}</span>`):'';
+      const ck=srv?`<button class="lck ${un===0?'on':''}" data-a="lck" data-id="${esc(l.key)}" aria-pressed="${un===0}" aria-label="${esc(nm)}を${un===0?'未提供に戻す':'提供済みにする'}">${ic('check',22)}</button>`:'';
+      return `<div class="line ${cls} ${srv&&un===0?'served':''} ${srv?'hasck':''}" data-k="${esc(l.key)}">${ck}
+      <button class="ln" data-a="lprice" data-id="${esc(l.key)}" aria-label="${esc(nm)}の価格・メモ・税率を変更"><span>${esc(nm)}${l.price!==l.base?`<span class="tag">${l.price===0?'サービス':'価格変更'}</span>`:''}${lineRk(l)==='sub'?`<span class="tag tko">${esc(S.tax.subName)}</span>`:''}</span>${l.memo?`<span class="lmemo">${ic('msg',14)}${esc(l.memo)}</span>`:''}<small class="num">${yen(l.price)}${l.price!==l.base?`（定価 ${yen(l.base)}）`:''}${sv}</small></button>
       <div class="stepper"><button data-a="dec" data-id="${esc(l.key)}" aria-label="${esc(nm)}を1つ減らす">${ic('minus',20)}</button><span class="qn num" aria-label="数量">${l.qty}</span><button data-a="inc" data-id="${esc(l.key)}" aria-label="${esc(nm)}を1つ増やす">${ic('plus',20)}</button></div>
       <span class="lsub num">${yen(l.price*l.qty)}</span></div>`;}).join('')
     :`<div class="empty">${ic('clipboard',40)}${isTab?'右':'下'}の品目をタップすると注文が入ります。<br>入った品名をタップすると価格やメモを変えられます。</div>`}</div>
-  <div class="sumbar"><span class="cnt"><b class="num">${count(t)}</b>点</span><span class="sumr"><small class="num">${esc(b.name)} ${pct(b.rate)} 税込${b.adj.length?'・割引/サービス料込':''}${b.total!==b.sub?`（${S.tax.mode==='excl'?'税抜':'価格計'} ${yen(b.sub)}）`:''}</small><span class="total num" data-roll="${b.total}" data-rid="o${t.id}">${yen(b.total)}</span></span></div>
+  <div class="sumbar"><span class="cnt"><b class="num">${count(t)}</b>点</span><span class="sumr"><small class="num">${esc(rateTxt(b))} 税込${b.adj.length?'・割引/サービス料込':''}${b.total!==b.sub?`（${S.tax.mode==='excl'?'税抜':'価格計'} ${yen(b.sub)}）`:''}</small><span class="total num" data-roll="${b.total}" data-rid="o${t.id}">${yen(b.total)}</span></span></div>
   ${actions}</section>
   <section class="menu" aria-label="品目">
   <div class="cats" role="tablist" aria-label="カテゴリ" data-keepx="cats">${S.cats.map((c,i)=>`<button role="tab" aria-selected="${i===curCat}" data-a="cat" data-i="${i}" class="${i===curCat?'on':''}">${esc(c.name)}</button>`).join('')}<span class="cthumb" aria-hidden="true"></span></div>
@@ -948,7 +1031,7 @@ function historyView(enter){
     ${vd.length?`<p class="note">取り消した会計 ${vd.length}件（${yen(vd.reduce((a,x)=>a+x.total,0))}）は集計に含めていません。</p>`:''}
     ${all.length?`<div class="btnrow" style="margin-top:16px"><button class="btn btn-line" data-a="csvd">${ic('download',20)}明細CSVを保存</button><button class="btn btn-line" data-a="csvi">${ic('download',20)}品目別CSVを保存</button></div>`
       :'<p class="note">会計すると、ここから明細と品目別のCSVを保存できます。</p>'}
-    ${(()=>{const by={};s.forEach(x=>{const k=(x.taxName||'—')+' '+(x.taxRate!=null?pct(x.taxRate):'');const a=by[k]=by[k]||{n:0,t:0,tax:0};a.n++;a.t+=x.total;a.tax+=x.tax||0;});
+    ${(()=>{const by={};s.forEach(x=>{(x.taxes&&x.taxes.length?x.taxes.map(g=>({k:g.name+' '+pct(g.rate),t:g.total,tax:g.tax})):[{k:(x.taxName||'—')+' '+(x.taxRate!=null?pct(x.taxRate):''),t:x.total,tax:x.tax||0}]).forEach(r=>{const a=by[r.k]=by[r.k]||{n:0,t:0,tax:0};a.n++;a.t+=r.t;a.tax+=r.tax||0;});});
       const e=Object.entries(by);return e.length?`<h2>税率別</h2><div class="tblw"><table class="tbl"><thead><tr><th>区分</th><th class="r">件数</th><th class="r">税込合計</th><th class="r">うち消費税</th></tr></thead><tbody>
       ${e.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="r">${v.n}</td><td class="r">${yen(v.t)}</td><td class="r">${yen(v.tax)}</td></tr>`).join('')}</tbody></table></div>`:''})()}
     <div class="hcols"><section>
@@ -987,7 +1070,7 @@ function bdRows(b,t,inter){
     out.push(R(V.fixedLabel||'席料',per?`${yen(V.fixed)}×${t.guests||0}名${t.guests?'':'（人数が未設定のため¥0）'}`:'1会計あたり',amtOf('sfix'),'sfix'));}
   const taxRow=()=>out.push(R(D.taxLabel||'消費税相当割引',D.taxWhen==='after'?'消費税の後に、その消費税と同じ額を引く':'消費税の前に、消費税と同じ額を引く',amtOf('dtax'),'dtax'));
   if(D.taxOn&&D.taxWhen!=='after') taxRow();
-  if(b.pre!==b.base) out.push(R(b.mode==='excl'?`消費税（${pct(b.rate)}）`:`${b.name}（${pct(b.rate)}）適用`,'',b.pre-b.base));
+  if(b.pre!==b.base) out.push(R(b.groups?(b.mode==='excl'?'消費税（税率ごと）':'税率の調整（品目ごと）'):b.mode==='excl'?`消費税（${pct(b.rate)}）`:`${b.name}（${pct(b.rate)}）適用`,b.groups?rateTxt(b):'',b.pre-b.base));
   if(D.taxOn&&D.taxWhen==='after') taxRow();
   if(D.digits>0) out.push(R(D.truncLabel||'端数値引き',`${yen(10**D.digits)}未満を切り捨て（最後にかかる）`,amtOf('dtrunc'),'dtrunc'));
   return out;
@@ -1012,7 +1095,7 @@ function calcGuide(){
       <div class="bd">${bdRows(b,fake,false).join('')}</div>
       <div class="exsum"><span>合計</span><span><b class="num">${yen(b.total)}</b> <small class="muted num">（内消費税 ${yen(b.tax)}）</small></span></div></div>`;
 }
-const SUBS={cloud:'端末連携（クラウド）',serve:'提供チェック',pin:'暗証番号',shop:'店舗情報',tax:'消費税',disc:'割引',svc:'サービス料',pay:'支払い方法',items:'品目',cats:'カテゴリ',tables:'テーブル',backup:'バックアップ',reset:'リセット',sync:'端末連携（Wi-Fi）'};
+const SUBS={sound:'注文の効果音',staff:'スタッフ用の端末',cloud:'端末連携（クラウド）',serve:'提供チェック（履歴）',pin:'暗証番号',shop:'店舗情報',tax:'消費税',disc:'割引',svc:'サービス料',pay:'支払い方法',items:'品目',cats:'カテゴリ',tables:'テーブル',backup:'バックアップ',reset:'リセット',sync:'端末連携（Wi-Fi）'};
 function settingsView(sub){
   const tx=S.tax;
   const cur=isTab?(view.sub||'shop'):null;
@@ -1041,7 +1124,9 @@ function settingsView(sub){
     </div>
     <h2 class="gh">運用</h2>
     <div class="group">
-      ${srow('listchecks','提供チェック',S.opt.serve?'使う':'使わない','serve')}
+      ${srow('listchecks','提供チェック（履歴）',S.opt.serve?'使う':'使わない','serve')}
+      ${srow('bell','注文の効果音',DEV.snd?(SOUNDS.find(x=>x[0]===DEV.sndType)||SOUNDS[0])[1]:'鳴らさない','sound')}
+      ${srow('badge','スタッフ用の端末',DEV.staff?'オン':'オフ','staff')}
       ${srow(S.pin&&!unlocked?'lock':S.pin?'unlock':'lock','暗証番号',S.pin?(unlocked?'設定済み・解除中':'設定済み'):'なし','pin')}
     </div>
     <h2 class="gh">ほかの端末</h2>
@@ -1152,9 +1237,21 @@ function settingsView(sub){
   if(sub==='sync') return syncView();
   if(sub==='cloud') return cloudView();
   if(sub==='serve') return `<div class="sec">
-    <div class="group"><label class="ck"><input type="checkbox" data-opt="serve" ${S.opt.serve?'checked':''}><span>提供チェックを使う<small>下に「提供」タブが出て、まだ出していない注文の一覧と、今日提供した記録を見られます</small></span></label></div>
-    <p class="note">注文が入ると「提供」タブに並びます。料理や飲み物を出したら「提供」を押します。伝票にも「提供済み」と表示します。</p>
-    <p class="note">端末連携でサブ端末を厨房に置くと、ホールで入れた注文をそのまま厨房の「提供」タブで見られます。</p>
+    <div class="group"><label class="ck"><input type="checkbox" data-opt="serve" ${S.opt.serve?'checked':''}><span>提供チェックを使う<small>下に「履歴」タブが出て、注文の一覧（チェック・品名・経過時間）と、今日提供した記録を見られます</small></span></label></div>
+    <p class="note">注文が入ると「履歴」タブに並びます。料理や飲み物を出したら、左の丸を押してチェックします。注文画面の伝票にもチェックがあり、まだ出していない注文には経過時間が出ます。チェックすると経過時間が消え、行の色が変わります。</p>
+    <p class="note">この設定はお店のすべての端末に共通です。</p>
+  </div>`;
+  if(sub==='sound') return `<div class="sec">
+    <div class="group"><label class="ck"><input type="checkbox" data-dev="snd" ${DEV.snd?'checked':''}><span>ほかの端末で注文が入ったら鳴らす<small>端末連携（Wi-Fi・クラウド）で、ほかの端末から注文が届いたときに、この端末で音を鳴らします</small></span></label></div>
+    <h3>音の種類</h3>
+    <div class="group">${SOUNDS.map(([k,n,d])=>`<div class="row"><label class="ck grow" style="padding:0;min-height:44px"><input type="radio" name="sndt" value="${k}" data-sndt ${DEV.sndType===k?'checked':''}><span>${n}<small>${d}</small></span></label><button class="iconbtn" data-a="sndplay" data-v="${k}" aria-label="${n}を試しに鳴らす">${ic('play',20)}</button></div>`).join('')}</div>
+    <p class="note">この設定はこの端末だけのものです。端末ごとに、鳴らす・鳴らさないや音を選べます。ブラウザの決まりで、アプリを開いてから一度画面をタップするまでは音が出ません。消音モードやマナーモードでも鳴らないことがあります。</p>
+  </div>`;
+  if(sub==='staff') return `<div class="sec">
+    <div class="group"><label class="ck"><input type="checkbox" data-dev="staff" ${DEV.staff?'checked':''}><span>この端末をスタッフ用にする<small>下のタブが「テーブル」と「履歴」だけになります</small></span></label></div>
+    <p class="note">スタッフ用の端末では、売上と設定が出ません。テーブルを開く・注文を入れる・会計はそのままできます。「履歴」では、チェックした注文が一覧から消えます。</p>
+    <p class="note">戻すときは、画面の上の「スタッフ用」を押します。暗証番号を設定しているときは、暗証番号の入力が必要です。</p>
+    <p class="note">この設定はこの端末だけのものです。</p>
   </div>`;
   if(sub==='pin') return `<div class="sec">
     <p class="note">4桁の暗証番号を設定すると、<b>売上・設定・会計の取り消し</b>を開くときに入力が必要になります。注文と会計は暗証番号なしでできるので、スタッフ用の端末としてそのまま使えます。</p>
@@ -1223,7 +1320,7 @@ function render(){
   const oldOn=document.querySelector('.cats .on'); prevCatRect=oldOn?{l:oldOn.offsetLeft,w:oldOn.offsetWidth}:null;
 
   if(SY.role==='sub'&&(view.name==='history'||(view.name==='settings'&&view.sub&&view.sub!=='sync')))view={name:view.name==='history'?'tables':'settings',sub:view.name==='history'?undefined:'sync'};
-  if(locked()&&LOCKED_TABS.includes(view.name))view={name:'tables'};
+  if((locked()||DEV.staff)&&LOCKED_TABS.includes(view.name))view={name:'tables'};
   if(view.name==='serve'&&!S.opt.serve)view={name:'tables'};
   const route=view.name+(view.tid||'')+(view.sub||'');
   const routeChanged=route!==render.route;
@@ -1380,14 +1477,16 @@ function toast(m){const el=$('toast');el.innerHTML=ic('info',20)+'<span></span>'
 function openGuests(tid,isNew){
   pendingT=tid;const t=S.tables.find(x=>x.id===tid);
   showModal(`${sheetHead(esc(t.name)+' の人数')}<div class="mb"><div class="gg stagger">
-    ${Array.from({length:10},(_,i)=>`<button class="btn btn-line num" style="--i:${i}" data-a="g" data-n="${i+1}">${i+1}</button>`).join('')}</div></div>
+    ${Array.from({length:10},(_,i)=>`<button class="btn btn-line num" style="--i:${i}" data-a="g" data-n="${i+1}">${i+1}</button>`).join('')}</div>
+    <p class="note" style="margin-top:16px">11名以上は、＋で増やして「この人数にする」を押します。</p>
+    <div class="gmore"><button class="btn btn-line" data-a="gstep" data-v="-1" aria-label="1人減らす">${ic('minus',22)}</button><label class="gnum"><input id="gnum" class="num" inputmode="numeric" value="${Math.max(11,t.guests||0)}" aria-label="人数"><span>名</span></label><button class="btn btn-line" data-a="gstep" data-v="1" aria-label="1人増やす">${ic('plus',22)}</button><button class="btn btn-fill" data-a="gok">この人数にする</button></div></div>
     <div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button>${isNew?'<button class="btn btn-text" data-a="g" data-n="0">人数なしで開始</button>':''}</div>`);
 }
 let payKind='main', payShown=null, paySel={}, payMethod=null;
 const curMethod=()=>S.pay.methods.find(m=>m.id===payMethod)||payDef();
 const payBill=()=>calcFull(curT(),payKind,paySel);
 function openPay(){
-  const t=curT(); payKind='main'; payShown=null;
+  const t=curT(); const mix=hasMix(t); payKind=mix?'item':'main'; payShown=null;
   paySel={dpct:false,dtrunc:false,spct:false,sfix:false}; payMethod=payDef().id;
   const D=S.disc,V=S.svc;
   const feats=[['dpct',D.pct>0],['dtrunc',D.digits>0],['dtax',!!D.taxOn],['spct',V.pct>0],['sfix',V.fixed>0]].filter(f=>f[1]).map(f=>f[0]);
@@ -1397,7 +1496,8 @@ function openPay(){
     <div class="paysum"><span>合計</span><div class="paytot num" id="ptot" aria-live="polite"></div><div class="taxline num" id="ptax"></div></div>
     <div class="accs">
     ${S.pay.methods.length>1?acc('pm','支払い方法',`<div class="chips" role="radiogroup" aria-label="支払い方法">${S.pay.methods.map(m=>`<label><input type="radio" name="pm" value="${m.id}" data-pm ${m.id===payMethod?'checked':''}><span>${esc(m.name)}</span></label>`).join('')}</div>`,false):''}
-    ${acc('tax','税率',`<div class="seg" role="radiogroup" aria-label="税率">${['main','sub'].map(k=>`<label><input type="radio" name="pk" value="${k}" data-pk ${k==='main'?'checked':''}><span>${esc(rateName(k))} ${pct(k==='sub'?S.tax.sub:S.tax.main)}</span></label>`).join('')}</div>`,false)}
+    ${acc('tax','税率',`<div class="seg" role="radiogroup" aria-label="税率">${(mix?['item','main','sub']:['main','sub']).map(k=>`<label><input type="radio" name="pk" value="${k}" data-pk ${k===payKind?'checked':''}><span>${k==='item'?'品目ごと':`${esc(rateName(k))} ${pct(k==='sub'?S.tax.sub:S.tax.main)}`}</span></label>`).join('')}</div>
+      ${mix?`<p class="note">この伝票には${esc(S.tax.mainName)}と${esc(S.tax.subName)}の品が混ざっています。「品目ごと」は品目ごとの税率で計算します。全部を同じ税率にするときは、右の2つから選びます。</p>`:''}`,mix)}
     ${feats.length?acc('adj','割引・サービス料','<div id="pbd"></div>',askOpen):''}
     </div>
     <div id="nochg" class="nochg" hidden></div>
@@ -1414,12 +1514,12 @@ function updPay(){
   const t=curT(), b=payBill(), rows=bdRows(b,t,true), m=curMethod(), pbd=$('pbd');
   if(pbd) pbd.innerHTML=`<div class="bd">${rows.join('')}</div><p class="note bdnote">${ic('info',16)}<span>％はメニュー計にかかり、切り捨ては最後にかかります。くわしくは 設定 › 割引・サービス料</span></p>`;
   const setV=(id,v)=>{const e=$('accv-'+id);if(e)e.textContent=v;};
-  setV('pm',m.name); setV('tax',`${b.name} ${pct(b.rate)}`);
+  setV('pm',m.name); setV('tax',rateTxt(b));
   const adjSum=b.adj.reduce((a,x)=>a+x.amt,0);
   setV('adj',b.adj.length?`${b.adj.length}件 ${adjSum>0?'+':''}${yen(adjSum)}`:'なし');
   if(payShown==null)$('ptot').textContent=yen(b.total); else if(payShown!==b.total)countTo($('ptot'),payShown,b.total,yen,380);
   payShown=b.total;
-  $('ptax').textContent=`内消費税 ${yen(b.tax)}（${pct(b.rate)}）`+(b.total!==b.sub?`　メニュー価格計 ${yen(b.sub)}`:'');
+  $('ptax').textContent=(b.groups?b.groups.filter(x=>x.total).map(x=>`${pct(x.rate)}対象 ${yen(x.total)}（内消費税 ${yen(x.tax)}）`).join('　'):`内消費税 ${yen(b.tax)}（${pct(b.rate)}）`)+(b.total!==b.sub?`　メニュー価格計 ${yen(b.sub)}`:'');
   $('cashbox').hidden=!m.change; $('nochg').hidden=m.change;
   if(!m.change){$('nochg').innerHTML=ic('info',20)+'<span></span>';$('nochg').lastChild.textContent=`${m.name}はおつりを計算しません。合計額 ${yen(b.total)} で記録します。`;}
   updChg();
@@ -1576,8 +1676,11 @@ function loadLogo(file){
   fr.readAsDataURL(file);
 }
 function receiptOps(x,kind){
-  const sh=S.shop, ops=[], hasTax=x.taxRate!=null;
-  const reduced=hasTax&&x.taxKind==='sub'&&x.taxRate<S.tax.main;
+  const sh=S.shop, ops=[], mixT=Array.isArray(x.taxes)&&x.taxes.length>0, hasTax=x.taxRate!=null||mixT;
+  const reduced=!mixT&&hasTax&&x.taxKind==='sub'&&x.taxRate<S.tax.main;
+  /* 混在の会計：軽減税率（低い方）の品目に ※ を付ける */
+  const mainRate=mixT?(x.taxes.find(g=>g.kind==='main')||{}).rate:null, redG=g=>mixT&&g.kind==='sub'&&g.rate<(mainRate??S.tax.main);
+  const lineRed=l=>reduced||(mixT&&l.rk==='sub'&&x.taxes.some(redG));
   const head=()=>{
     if(sh.logo)ops.push({t:'logo'});
     if(sh.name)ops.push({t:'text',s:sh.name,a:'c',z:1.5,b:1});
@@ -1587,9 +1690,11 @@ function receiptOps(x,kind){
   };
   const taxBlock=()=>{
     if(!hasTax)return;
+    if(mixT){x.taxes.filter(g=>g.total).forEach(g=>{ops.push({t:'lr',l:`${pct(g.rate)}対象${redG(g)?'（軽減）':''}`,r:yenR(g.total)});ops.push({t:'lr',l:'　内消費税等',r:yenR(g.tax)});});return;}
     ops.push({t:'lr',l:`${pct(x.taxRate)}対象${reduced?'（軽減）':''}`,r:yenR(x.total)});
     ops.push({t:'lr',l:'　内消費税等',r:yenR(x.tax)});
   };
+  const anyRed=reduced||(mixT&&x.taxes.some(redG));
   if(kind==='ryo'){
     if(sh.logo)ops.push({t:'logo'});
     ops.push({t:'title',s:'領 収 書'});
@@ -1603,6 +1708,7 @@ function receiptOps(x,kind){
     ops.push({t:'text',s:'＜内訳＞',a:'l',z:.85});
     taxBlock();
     if(reduced)ops.push({t:'text',s:'※軽減税率（'+pct(x.taxRate)+'）対象',a:'l',z:.8});
+    else if(anyRed)ops.push({t:'text',s:'※軽減税率対象を含みます',a:'l',z:.8});
     if(x.total>=50000)ops.push({t:'stamp'});
     ops.push({t:'rule'});
     if(sh.name)ops.push({t:'text',s:sh.name,a:'l',z:1.15,b:1});
@@ -1619,7 +1725,7 @@ function receiptOps(x,kind){
   ops.push({t:'rule'});
   x.lines.forEach(l=>{
     const base=l.base??l.price, tag=l.price===base?'':(l.price===0?'（サービス）':'（値引）');
-    const nm=l.name+(reduced?' ※':'')+tag;
+    const nm=l.name+(lineRed(l)?' ※':'')+tag;
     if(l.qty===1)ops.push({t:'lr',l:nm,r:yenR(l.price)});
     else{ops.push({t:'text',s:nm,a:'l'});ops.push({t:'lr',l:`　${yenR(l.price)} × ${l.qty}`,r:yenR(l.price*l.qty)});}
   });
@@ -1631,7 +1737,7 @@ function receiptOps(x,kind){
   if(adj.length||taxDiff){
     ops.push({t:'lr',l:`${x.priceMode==='excl'?'小計（税抜）':'小計'}　${cnt}点`,r:yenR(sub)});
     before.forEach(a=>ops.push({t:'lr',l:a.label+(a.note?`（${a.note}）`:''),r:yenR(a.amt)}));
-    if(taxDiff) ops.push({t:'lr',l:x.priceMode==='excl'?`消費税（${pct(x.taxRate)}）`:`${x.taxName}（${pct(x.taxRate)}）適用`,r:yenR(pre-x.base)});
+    if(taxDiff) ops.push({t:'lr',l:mixT?(x.priceMode==='excl'?'消費税':'税率の調整'):x.priceMode==='excl'?`消費税（${pct(x.taxRate)}）`:`${x.taxName}（${pct(x.taxRate)}）適用`,r:yenR(pre-x.base)});
     after.forEach(a=>ops.push({t:'lr',l:a.label,r:yenR(a.amt)}));
   }else ops.push({t:'lr',l:`点数`,r:`${cnt}点`,z:.9});
   ops.push({t:'lr',l:'合　計',r:yenR(x.total),z:1.45,b:1});
@@ -1642,7 +1748,7 @@ function receiptOps(x,kind){
     ops.push({t:'lr',l:'お預り',r:yenR(x.paid)});
     ops.push({t:'lr',l:'お　釣',r:yenR(x.change)});
   }
-  if(reduced)ops.push({t:'text',s:'※印は軽減税率対象商品',a:'l',z:.8});
+  if(anyRed)ops.push({t:'text',s:'※印は軽減税率対象商品',a:'l',z:.8});
   if(sh.footer){ops.push({t:'gap',h:.8});ops.push({t:'text',s:sh.footer,a:'c',z:.85});}
   return ops;
 }
@@ -1818,7 +1924,7 @@ function openPinForgot(){
 
 /* ---------- order ops ---------- */
 /* 同じ品・同じ価格・同じサイズ・同じメモの注文は1行にまとめる。サイズもメモもない行は以前と同じキー */
-const lineKey=(iid,price,size,memo)=>iid+'@'+price+(size?'|'+size:'')+(memo?'#'+memo:'');
+const lineKey=(iid,price,size,memo,rk)=>iid+'@'+price+(size?'|'+size:'')+(rk==='sub'?'~sub':'')+(memo?'#'+memo:'');
 /* 品名にサイズを付けた表示名（例：親子丼（大））。会計の記録にはこの名前で残す */
 const lineLabel=l=>l.name+(l.size?`（${l.size}）`:'');
 const SIZES=[['s','小'],['n','並'],['l','大']];
@@ -1832,7 +1938,7 @@ function addItem(t,iid,price,size){
   if(price==null)price=base;
   const key=lineKey(iid,price,size,'');
   const l=t.lines.find(x=>x.key===key);
-  if(l){bumpWait(l);l.qty++;} else t.lines.push({key,iid,name:it.name,price,base,qty:1,size,memo:'',sv:0,wt:Date.now()});
+  if(l){bumpWait(l);l.qty++;} else t.lines.push({key,iid,name:it.name,price,base,qty:1,size,memo:'',rk:'main',sv:0,wt:Date.now(),at:Date.now()});
   t.stack.push(key);
   return {key,existed:!!l};
 }
@@ -1843,18 +1949,37 @@ function decItem(t,key,fromUndo){
   if(!fromUndo){const k=t.stack.lastIndexOf(key);if(k>=0)t.stack.splice(k,1);}
 }
 /* 行の価格とメモを変える。変えた結果、同じ内容の行があればまとめる */
-function editLine(t,key,price,memo){
+function editLine(t,key,price,memo,rk){
   const l=t.lines.find(x=>x.key===key); if(!l)return;
-  memo=(memo||'').trim().slice(0,30);
-  if(l.price===price&&l.memo===memo)return;
-  const nk=lineKey(l.iid,price,l.size,memo), other=t.lines.find(x=>x.key===nk&&x!==l);
-  if(other){other.qty+=l.qty;other.sv=(other.sv||0)+(l.sv||0);other.wt=Math.min(other.wt||Date.now(),l.wt||Date.now());t.lines=t.lines.filter(x=>x!==l);}
-  else{l.price=price;l.memo=memo;l.key=nk;}
+  memo=(memo||'').trim().slice(0,30); rk=rk==null?l.rk:(rk==='sub'?'sub':'main');
+  if(l.price===price&&l.memo===memo&&l.rk===rk)return;
+  const nk=lineKey(l.iid,price,l.size,memo,rk), other=t.lines.find(x=>x.key===nk&&x!==l);
+  if(other){other.qty+=l.qty;other.sv=(other.sv||0)+(l.sv||0);other.wt=Math.min(other.wt||Date.now(),l.wt||Date.now());other.at=Math.min(other.at||Date.now(),l.at||Date.now());t.lines=t.lines.filter(x=>x!==l);}
+  else{l.price=price;l.memo=memo;l.rk=rk;l.key=nk;}
   t.stack=t.stack.map(k=>k===key?nk:k);
   t.slog.forEach(e=>{if(e.key===key)e.key=nk;});
   return nk;
 }
-const repriceLine=(t,key,price)=>{const l=t.lines.find(x=>x.key===key);return l?editLine(t,key,price,l.memo):undefined;};
+const repriceLine=(t,key,price)=>{const l=t.lines.find(x=>x.key===key);return l?editLine(t,key,price,l.memo,l.rk):undefined;};
+/* 提供済みを未提供に戻す（いちばん新しい記録から） */
+function unserveLine(t,key){const e=t.slog.slice().reverse().find(x=>x.key===key);if(e)unserve(t,e.id);else{const l=t.lines.find(x=>x.key===key);if(l){l.sv=0;l.wt=Date.now();}}}
+/* ---------- テーブルの移動と結合 ---------- */
+function moveTable(src,dst){
+  ['open','guests','start','lines','stack','slog','merged'].forEach(k=>{dst[k]=JSON.parse(JSON.stringify(src[k]??(k==='open'?false:k==='guests'||k==='start'?0:[])));});
+  resetTable(src);
+}
+function mergeInto(t,o){
+  o.lines.forEach(l=>{const x=t.lines.find(y=>y.key===l.key);
+    if(x){x.qty+=l.qty;x.sv=(x.sv||0)+(l.sv||0);x.wt=Math.min(x.wt||Date.now(),l.wt||Date.now());x.at=Math.min(x.at||Date.now(),l.at||Date.now());}
+    else t.lines.push(JSON.parse(JSON.stringify(l)));});
+  t.slog=t.slog.concat(o.slog||[]); t.guests=(t.guests||0)+(o.guests||0);
+  if(o.start&&(!t.start||o.start<t.start))t.start=o.start;
+  t.merged=(t.merged||[]).concat([o.name],o.merged||[]);
+  resetTable(o);
+}
+const tableLabel=t=>t.name+((t.merged||[]).length?'＋'+t.merged.join('＋'):'');
+/* 注文数（効果音の判定に使う）：使用中テーブルの注文の合計数 */
+const orderCount=()=>S.tables.reduce((a,t)=>a+(t.open?t.lines.reduce((b,l)=>b+l.qty,0):0),0);
 
 /* ---------- 提供チェック ---------- */
 const unservedOf=l=>Math.max(0,l.qty-(l.sv||0));
@@ -1888,7 +2013,8 @@ function openPrice(ctx){
   showModal(`${sheetHead(esc(name))}<div class="mb">
     <div class="pricerow"><label class="fl">${ctx.mode==='add'?'価格':'1つあたりの価格'+(qty>1?`（${qty}点すべてに適用）`:'')}<input id="pval" class="big ${cur<0?'neg':''}" inputmode="numeric" autocomplete="off" value="${cur}"></label>${pmBtn('pval')}</div>
     <div class="quick"><button class="btn btn-line" data-a="pp" data-v="0">サービス ¥0</button><button class="btn btn-line" data-a="pp" data-v="half">半額</button><button class="btn btn-line num" data-a="pp" data-v="base">定価 ${yen(base)}</button></div>
-    ${ctx.mode==='line'?`<label class="fl" style="margin-top:16px">メモ${qty>1?`（${qty}点すべてに付きます）`:''}<input id="pmemo" value="${esc(memo)}" maxlength="30" placeholder="例：ネギ抜き、取り分け皿2枚" autocomplete="off" enterkeyhint="done"></label>
+    ${ctx.mode==='line'?`<div class="mrow"><span class="mlab">税率</span><div class="seg" role="radiogroup" aria-label="この品の税率">${['main','sub'].map(k=>`<label><input type="radio" name="prk" value="${k}" ${(t.lines.find(x=>x.key===ctx.key)||{}).rk===k||(k==='main'&&(t.lines.find(x=>x.key===ctx.key)||{}).rk!=='sub')?'checked':''}><span>${esc(rateName(k))} ${pct(k==='sub'?S.tax.sub:S.tax.main)}</span></label>`).join('')}</div></div>
+      <label class="fl" style="margin-top:8px">メモ${qty>1?`（${qty}点すべてに付きます）`:''}<input id="pmemo" value="${esc(memo)}" maxlength="30" placeholder="例：ネギ抜き、取り分け皿2枚" autocomplete="off" enterkeyhint="done"></label>
       <p class="note">メモは伝票と「提供」の画面に出ます。レシートには印字しません。</p>`:''}
     ${ctx.mode==='line'&&qty>1?'<p class="note">1点だけサービスやメモにしたいときは、−で1つ減らしてからもう一度追加し、その行を変更してください。</p>':''}</div>
     <div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button><button class="btn btn-fill" data-a="pok">${ctx.mode==='add'?'追加':'変更'}</button></div>`);
@@ -1906,6 +2032,48 @@ function openSize(iid){
 function voidAsk(x){
   confirmBox(`No.${saleNo(x)}（${esc(x.table)}・${yen(x.total)}）の会計を取り消しますか？<br>履歴には「取り消し」として残り、売上の集計から外れます。取り消しは元に戻せません。`,
         ()=>{x.voided=true;x.voidedAt=Date.now();if(done&&done.id===x.id)done=null;toast('会計を取り消しました');},'取り消す',true);}
+/* テーブルの操作：人数・移動・結合 */
+function openTableOps(){
+  const t=curT(), others=S.tables.filter(x=>x.open&&x!==t).length, empty=S.tables.filter(x=>!x.open).length;
+  showModal(`${sheetHead(esc(tableLabel(t))+' の操作')}<div class="mb"><div class="group">
+    <button class="row" data-a="tguests"><span class="sic">${ic('users',20)}</span><span class="grow">人数を変える<small class="muted" style="display:block">今：${t.guests?t.guests+'名':'未設定'}</small></span>${ic('chev',20,'chev')}</button>
+    <button class="row" data-a="tmove" ${empty?'':'disabled'}><span class="sic">${ic('move',20)}</span><span class="grow">別のテーブルへ移動<small class="muted" style="display:block">${empty?'注文と人数をそのまま空いているテーブルへ移します':'空いているテーブルがありません'}</small></span>${ic('chev',20,'chev')}</button>
+    <button class="row" data-a="tmerge" ${others?'':'disabled'}><span class="sic">${ic('merge',20)}</span><span class="grow">ほかのテーブルと会計をまとめる<small class="muted" style="display:block">${others?'選んだテーブルの注文をこのテーブルに集めて、1つの会計にします':'ほかに使用中のテーブルがありません'}</small></span>${ic('chev',20,'chev')}</button>
+    </div></div><div class="mbtns"><button class="btn btn-line" data-a="mclose">閉じる</button></div>`);
+}
+function openMove(){
+  const t=curT(), em=S.tables.filter(x=>!x.open);
+  showModal(`${sheetHead(esc(t.name)+' をどこへ移動しますか')}<div class="mb"><div class="mvgrid">${em.map(x=>`<button class="btn btn-line" data-a="mvto" data-id="${x.id}">${esc(x.name)}</button>`).join('')}</div>
+    <p class="note">注文・人数・入店時刻・提供の記録をそのまま移し、${esc(t.name)} は空席になります。</p></div>
+    <div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button></div>`);
+}
+function openMerge(){
+  const t=curT(), os=S.tables.filter(x=>x.open&&x!==t);
+  showModal(`${sheetHead(esc(tableLabel(t))+' にまとめる')}<div class="mb"><p class="msg">まとめるテーブルを選んでください。</p><div class="group">
+    ${os.map(x=>`<label class="ck"><input type="checkbox" data-mg value="${x.id}"><span>${esc(tableLabel(x))}<small>${x.guests?x.guests+'名・':''}${yen(billT(x).total)}</small></span></label>`).join('')}</div>
+    <p class="note">選んだテーブルの注文と人数を ${esc(t.name)} に集めます。選んだテーブルは空席になります。会計の記録やレシートには「${esc(t.name)}＋…」と残ります。まとめたあとは元に戻せません。</p></div>
+    <div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button><button class="btn btn-fill" data-a="mgok">${ic('merge',20)}まとめる</button></div>`);
+}
+
+/* ---------- 注文の効果音（この端末だけ） ----------
+   WebAudio で音を作るので音声ファイルは使わない。ブラウザの決まりで、最初に画面をタップしたときに音を出せる状態にする */
+const SOUNDS=[['piroriro','ピロリロリン','明るく上がっていくチャイム'],['pipipi','ピピピー','はっきりした電子音'],['pinpon','ピンポーン','呼び出しのチャイム'],['pon','ポーン','やわらかい1音'],['beru','ベルリンリン','ベルを2回鳴らす']];
+let actx=null;
+function audioOn(){try{if(!actx){const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;actx=new A();}if(actx.state==='suspended')actx.resume();}catch(e){return null;}return actx;}
+document.addEventListener('pointerdown',()=>{if(DEV.snd&&!actx)audioOn();},{passive:true});
+function tone(c,t0,f,d,type='sine',vol=.25){const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t0);
+  g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(vol,t0+.015);g.gain.exponentialRampToValueAtTime(0.0001,t0+d);o.connect(g).connect(c.destination);o.start(t0);o.stop(t0+d+.05);}
+function playSound(k){
+  const c=audioOn(); if(!c)return; const t=c.currentTime+.02;
+  if(k==='pipipi'){[0,.14,.28].forEach((d,i)=>tone(c,t+d,2093,i===2?.32:.09,'square',.12));}
+  else if(k==='pinpon'){tone(c,t,880,.6);tone(c,t+.32,698,.9);}
+  else if(k==='pon'){tone(c,t,660,.8,'sine',.3);}
+  else if(k==='beru'){[0,.38].forEach(d=>{tone(c,t+d,1318,.7,'triangle',.22);tone(c,t+d,2637,.5,'sine',.08);});}
+  else {[1047,1319,1568,2093].forEach((f,i)=>tone(c,t+i*.09,f,i===3?.45:.16,'sine',.22));}
+}
+/* ほかの端末から届いた変更で注文が増えたら鳴らす */
+function dingIfMore(before){if(DEV.snd&&orderCount()>before)playSound(DEV.sndType);}
+
 /* CSV */
 const csvCell=v=>{v=String(v??'');return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
 const csvJoin=rows=>rows.map(r=>r.map(csvCell).join(',')).join('\r\n')+'\r\n';
@@ -1913,7 +2081,7 @@ const fullTime=ts=>{const d=new Date(ts);return `${d.getFullYear()}/${pad(d.getM
 const stamp=()=>{const d=new Date();return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;};
 function detailCSV(){
   const rows=[['会計No','会計日時','テーブル','人数','入店時刻','品名','単価','定価','数量','小計','備考','価格の扱い','税区分','税率(%)','メニュー価格計','消費税','会計合計(税込)','お預かり','おつり',
-    '支払方法','割引(%)','サービス料(%)','サービス料(固定)','消費税相当割引','切り捨て割引','状態','取消日時','メモ']];
+    '支払方法','割引(%)','サービス料(%)','サービス料(固定)','消費税相当割引','切り捨て割引','状態','取消日時','メモ','品目の税区分']];
   const adjAmt=(x,k)=>{const a=(x.adj||[]).find(a=>a.k===k);return a?a.amt:'';};
   const ml=m=>m==='excl'?'税抜':m==='incSub'?'サブ税率込':m==='incMain'?'標準税率込':'';
   S.sales.forEach((x,i)=>x.lines.forEach((l,j)=>{
@@ -1922,7 +2090,7 @@ function detailCSV(){
       f?ml(x.priceMode):'',f?(x.taxName||''):'',f?(x.taxRate??''):'',f?(x.sub??x.base??x.total):'',f?(x.tax??''):'',
       f?x.total:'',f?(x.payChange===false?'':x.paid):'',f?(x.payChange===false?'':x.change):'',
       f?(x.payMethod||''):'',f?adjAmt(x,'dpct'):'',f?adjAmt(x,'spct'):'',f?adjAmt(x,'sfix'):'',f?adjAmt(x,'dtax'):'',f?adjAmt(x,'dtrunc'):'',
-      x.voided?'取消':'有効',x.voided?fullTime(x.voidedAt):'',l.memo||'']);
+      x.voided?'取消':'有効',x.voided?fullTime(x.voidedAt):'',l.memo||'',x.taxes&&x.taxes.length?rateName(l.rk==='sub'?'sub':'main'):(x.taxName||'')]);
   }));
   return csvJoin(rows);
 }
@@ -1938,7 +2106,7 @@ function itemCSV(){
     ['取り消し(集計外)',vd.length+'件','',vd.reduce((s,x)=>s+x.total,0)],[]);
   const pm={};live.forEach(x=>{const k=x.payMethod||'記録なし';const a=pm[k]=pm[k]||{n:0,t:0};a.n++;a.t+=x.total;});
   rows.push(['支払方法','件数','','税込合計']);Object.entries(pm).forEach(([k,a])=>rows.push([k,a.n,'',a.t]));rows.push([]);
-  const by={};live.forEach(x=>{const k=(x.taxName||'不明')+(x.taxRate!=null?' '+x.taxRate+'%':'');const a=by[k]=by[k]||{n:0,t:0,tax:0};a.n++;a.t+=x.total;a.tax+=x.tax||0;});
+  const by={};live.forEach(x=>{(x.taxes&&x.taxes.length?x.taxes.map(g=>({k:g.name+' '+g.rate+'%',t:g.total,tax:g.tax})):[{k:(x.taxName||'不明')+(x.taxRate!=null?' '+x.taxRate+'%':''),t:x.total,tax:x.tax||0}]).forEach(r=>{const a=by[r.k]=by[r.k]||{n:0,t:0,tax:0};a.n++;a.t+=r.t;a.tax+=r.tax||0;});});
   rows.push(['税区分','件数','うち消費税','税込合計']);
   Object.entries(by).forEach(([k,a])=>rows.push([k,a.n,a.tax,a.t]));
   return csvJoin(rows);
@@ -1987,7 +2155,7 @@ function lastBackupText(){
   let ts=0; try{ts=+localStorage.getItem(KEY+'-lastbackup')||0;}catch(e){}
   return ts?'前回のバックアップ：'+fmtTime(ts):'まだバックアップしていません';
 }
-function resetTable(t){t.open=false;t.guests=0;t.start=0;t.lines=[];t.stack=[];t.slog=[];}
+function resetTable(t){t.open=false;t.guests=0;t.start=0;t.lines=[];t.stack=[];t.slog=[];t.merged=[];}
 
 /* ---------- 長押しで並べ替え（品目・テーブル・カテゴリ） ----------
    [data-rolist] の直下にある [data-roid] の行が対象。約0.4秒押したままにすると持ち上がり、上下に動かして離すと入れ替わる。
@@ -2283,7 +2451,7 @@ function syncDropPending(){const p=SY.pending;if(p&&!p.ok){SY.pending=null;try{p
 function hostMsg(p,m){
   if(m.t==='hi'){p.name=String(m.name||'').slice(0,16);slog('ホスト: サブの名前「'+p.name+'」');syncRender();return;}
   if(m.t==='ops'){
-    p.ack=Math.max(p.ack,+m.seq||0);
+    p.ack=Math.max(p.ack,+m.seq||0); const before=orderCount(); setTimeout(()=>dingIfMore(before),0);
     (m.tables||[]).forEach(t=>{const i=S.tables.findIndex(x=>x.id===t.id);if(i>=0&&t&&Array.isArray(t.lines))S.tables[i]=t;});
     (m.sales||[]).forEach(x=>{if(!x||!x.id||!Array.isArray(x.lines))return;
       const cur=S.sales.find(s=>s.id===x.id);
@@ -2358,8 +2526,9 @@ function subMsg(h,m){
   h.name=String(m.host||'');
   /* まだホストが処理していない操作があるときの古い状態は使わない（次に届く状態を待つ） */
   if((+m.ack||0)<SY.seq)return;
-  const first=!SY.got;
+  const first=!SY.got, before=orderCount();
   S=normalize(m.d); rebase(); SY.got=true;
+  if(!first)dingIfMore(before);
   if(first)slog('サブ: ホストのデータを受け取った');
   if(first){
     if(SY.newJoin){done=null;clip=null;curCat=0;view={name:'tables'};render.route=null;SY.newJoin=false;}
@@ -2547,8 +2716,9 @@ function cloudMsg(m){
   if(m.empty){CL.synced=false;return;}
   if((+m.ack||0)<CL.need){syncRender();return;}
   if(CL.inflight&&(+m.ack||0)>=CL.inflight.seq){CL.inflight=null;CL.need=0;}
-  const first=!CL.synced;
+  const first=!CL.synced, before=orderCount();
   cloudApply(m.d); CL.synced=true; saveCloud();
+  if(!first)dingIfMore(before);
   if(first){slog('クラウド: データを受け取った');if(CL.mode){toast('端末連携（クラウド）を始めました');CL.mode=null;if(modalOpen()&&$('sywait'))closeModal();}}
   cloudFlush(); syncRender();
 }
@@ -2730,6 +2900,24 @@ document.addEventListener('click',e=>{
       const r=addItem(t,it.id,null,lab); if(!r)return;
       fxLine={key:r.key,kind:r.existed?'bump':'new'}; save(); closeModal(); buzz(); break;}
     case 'srv': {const tb=S.tables.find(x=>x.id===b.dataset.t); if(!tb)return; serveLine(tb,id); save(); buzz(); break;}
+    case 'srvback': {const tb=S.tables.find(x=>x.id===b.dataset.t); if(!tb)return; unserveLine(tb,id); save(); break;}
+    case 'lck': {const l=t&&t.lines.find(x=>x.key===id); if(!l)return; if(unservedOf(l))serveLine(t,id); else unserveLine(t,id); save(); buzz(); break;}
+    case 'tops': openTableOps(); return;
+    case 'tguests': openGuests(t.id,false); return;
+    case 'tmove': openMove(); return;
+    case 'tmerge': openMerge(); return;
+    case 'mvto': {const dst=S.tables.find(x=>x.id===id); if(!dst||dst.open||!t)return; const from=t.name; moveTable(t,dst); view={name:'order',tid:dst.id}; save(); closeModal(); toast(`${from} から ${dst.name} へ移動しました`); break;}
+    case 'mgok': {const ids=[...document.querySelectorAll('input[data-mg]:checked')].map(x=>x.value); if(!ids.length){toast('まとめるテーブルを選んでください');return;}
+      ids.forEach(i2=>{const o=S.tables.find(x=>x.id===i2); if(o&&o.open&&o!==t)mergeInto(t,o);}); save(); closeModal(); toast(`${tableLabel(t)} にまとめました`); break;}
+    case 'gstep': {const inp=$('gnum'); const v=Math.max(1,Math.min(99,(parseInt(inp.value)||0)+(+b.dataset.v))); inp.value=v; return;}
+    case 'gok': {const v=parseInt(z2h(($('gnum')||{}).value||''));
+      if(!(v>=1&&v<=99)){toast('人数は1〜99で入力してください');return;}
+      const tb=S.tables.find(x=>x.id===pendingT); if(!tb)return;
+      if(!tb.open){tb.open=true;tb.start=Date.now();tb.lines=[];tb.stack=[];tb.slog=[];tb.merged=[];curCat=0;}
+      tb.guests=v; save(); closeModal(); view={name:'order',tid:tb.id}; break;}
+    case 'sndplay': playSound(b.dataset.v); return;
+    case 'staffoff': {const off=()=>{DEV.staff=false;saveDev();render();toast('スタッフ用を解除しました');};
+      if(S.pin&&SY.role!=='sub'){setUnlocked(false);openPin('unlock',{cb:off});} else confirmBox('スタッフ用を解除しますか？<br>売上と設定のタブが表示されます。',off,'解除する'); return;}
     case 'srvundo': {const tb=S.tables.find(x=>x.id===b.dataset.t); if(!tb)return; unserve(tb,id); save(); toast('未提供に戻しました'); break;}
     case 'inc': incLine(t,id); fxLine={key:id,kind:'bump'}; save(); break;
     case 'lprice': openPrice({mode:'line',key:id}); return;
@@ -2740,7 +2928,7 @@ document.addEventListener('click',e=>{
     case 'pok': {const raw=$('pval').value.replace(/−/g,'-').replace(/[^\d-]/g,''),p=parseInt(raw);
       if(isNaN(p)){toast('価格を数字で入力してください');return;}
       if(priceCtx.mode==='add'){const r=addItem(t,priceCtx.iid,p,priceCtx.size);if(r)fxLine={key:r.key,kind:r.existed?'bump':'new'};}
-      else{const nk=editLine(t,priceCtx.key,p,($('pmemo')||{}).value||'');if(nk)fxLine={key:nk,kind:'bump'};}
+      else{const rk=(document.querySelector('input[name="prk"]:checked')||{}).value;const nk=editLine(t,priceCtx.key,p,($('pmemo')||{}).value||'',rk);if(nk)fxLine={key:nk,kind:'bump'};}
       priceCtx=null; save(); closeModal(); break;}
     case 'pk': pinKey(b.dataset.v); return;
     case 'pinforgot': openPinForgot(); return;
@@ -2783,7 +2971,7 @@ document.addEventListener('click',e=>{
     case 'vacate': confirmBox(`${esc(t.name)} を空席に戻しますか？`,()=>{resetTable(t);view={name:'tables'};},'空席に戻す'); return;
     case 'guests': openGuests(t.id,false); return;
     case 'g': {const tb=S.tables.find(x=>x.id===pendingT);
-      if(!tb.open){tb.open=true;tb.start=Date.now();tb.lines=[];tb.stack=[];tb.slog=[];curCat=0;}
+      if(!tb.open){tb.open=true;tb.start=Date.now();tb.lines=[];tb.stack=[];tb.slog=[];tb.merged=[];curCat=0;}
       tb.guests=+b.dataset.n; save(); closeModal(); view={name:'order',tid:tb.id}; break;}
     case 'pay': openPay(); return;
     case 'pq': {const v=b.dataset.v,inp=$('paid');
@@ -2795,11 +2983,12 @@ document.addEventListener('click',e=>{
       }
       const now=Date.now();
       /* sub=メニュー価格計、base=割引・サービス料を入れた税計算前の額、pre=切り捨て前の税込額 */
-      const sale={id:uid(),no:nextSaleNo(now),table:t.name,guests:t.guests,start:t.start,end:now,
+      const sale={id:uid(),no:nextSaleNo(now),table:tableLabel(t),guests:t.guests,start:t.start,end:now,
         taxKind:bb.kind,taxName:bb.name,taxRate:bb.rate,priceMode:bb.mode,sub:bb.sub,base:bb.base,pre:bb.pre,tax:bb.tax,
+        ...(bb.groups?{taxes:bb.groups.filter(x=>x.total||x.base).map(x=>({kind:x.kind,name:x.name,rate:x.rate,total:x.total,tax:x.tax}))}:{}),
         adj:bb.adj.map(a=>({k:a.k,label:a.label,note:a.note,amt:a.amt,after:!!a.after})),payMethod:m.name,payChange:!cashless,
         /* 品名はサイズ付きで残す（元の居酒屋レジや集計でもそのまま読める）。メモと提供の記録も一緒に残す */
-        lines:t.lines.map(l=>({name:lineLabel(l),price:l.price,base:l.base,qty:l.qty,...(l.memo?{memo:l.memo}:{})})),
+        lines:t.lines.map(l=>({name:lineLabel(l),price:l.price,base:l.base,qty:l.qty,...(l.memo?{memo:l.memo}:{}),...(bb.kind==='mix'&&lineRk(l)==='sub'?{rk:'sub'}:{})})),
         ...(t.slog.length?{slog:t.slog.map(({id,at,name,qty,memo})=>({id,at,name,qty,memo}))}:{}),total:tot,paid:p,change:p-tot};
       S.sales.push(sale);
       resetTable(t); save(); closeModal(); done={id:sale.id,fresh:true}; view={name:'tables'}; render();
@@ -2884,6 +3073,9 @@ document.addEventListener('input',e=>{if(e.target.id==='sy-name'){SY.name=e.targ
 document.addEventListener('change',e=>{
   const el=e.target;
   if(el.dataset.opt){S.opt[el.dataset.opt]=el.checked;save();render();toast('保存しました');return;}
+  if(el.hasAttribute('data-cols')){DEV.cols=+el.value;saveDev();render();return;}
+  if(el.hasAttribute('data-sndt')){DEV.sndType=el.value;saveDev();playSound(el.value);render();return;}
+  if(el.dataset.dev){DEV[el.dataset.dev]=el.checked;saveDev();if(el.dataset.dev==='staff'&&el.checked){view={name:'tables'};toast('この端末をスタッフ用にしました');}render();return;}
   if(el.id==='isz'){const bx=$('iszbox');if(bx){bx.hidden=!el.checked;if(el.checked&&!$('isz-s').value){const p=parseInt($('iprice').value)||0;$('isz-s').value=p;$('isz-l').value=p;}}return;}
   if(el.hasAttribute('data-pk')){payKind=el.value;updPay();return;}
   if(el.hasAttribute('data-pm')){payMethod=el.value;updPay();return;}
