@@ -1,0 +1,13 @@
+{
+  "name": "akari-cloud",
+  "version": "1.0.0",
+  "private": true,
+  "description": "居酒屋レジ「あかり」端末連携（クラウド）の置き場所（Cloudflare Workers + Durable Objects）",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}

@@ -1,0 +1,14 @@
+// 居酒屋レジ「あかり」端末連携（クラウド）の置き場所の設定。
+// 無料プラン（Workers Free）で動くよう、Durable Object は SQLite 版（new_sqlite_classes）にしている。
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "akari-cloud",
+  "main": "src/index.js",
+  "compatibility_date": "2026-06-01",
+  "workers_dev": true,
+  "durable_objects": {
+    "bindings": [{ "name": "SHOP", "class_name": "AkariShop" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["AkariShop"] }],
+  "observability": { "enabled": true }
+}

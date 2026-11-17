@@ -534,6 +534,26 @@ button.row:active{background:var(--key-bg)}
 .pinpad .pinf{font-size:14px;line-height:1.3;white-space:normal}
 @media (min-width:768px){.hcols .srvrow{min-height:72px}}
 
+/* ---------- 端末連携（クラウド） ---------- */
+.cwarn-w{padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+.cwarn-w:empty{display:none}
+.cwarn{display:flex;gap:12px;align-items:flex-start;margin:12px 0;padding:12px 16px;border-radius:var(--r-md);background:var(--key-bg);box-shadow:inset 0 0 0 1px var(--key);color:var(--text)}
+.cwarn>.ic{color:var(--key);flex:0 0 auto;margin-top:2px}
+.cwarn.danger{background:var(--error-bg);box-shadow:inset 0 0 0 1px var(--error)}
+.cwarn.danger>.ic{color:var(--error)}
+.cwarn b{display:block;line-height:1.5}
+.cwarn p{margin:4px 0 8px;font-size:14px;line-height:1.6;color:var(--text-2)}
+.meter{margin:8px 0 16px}
+.meter .mtop{display:flex;justify-content:space-between;font-size:16px;line-height:1.5}
+.meter .mbar{height:12px;border-radius:999px;background:var(--divider);overflow:hidden;margin:4px 0}
+.meter .mbar i{display:block;height:100%;background:var(--key);border-radius:999px}
+.meter.mid .mbar i{background:#b78f00}
+.meter.hi .mbar i{background:var(--error)}
+.meter small{font-size:14px;line-height:1.6}
+.steps.setup li{margin-bottom:12px;line-height:1.7}
+.steps.setup a{word-break:break-all}
+.deploybtn{display:inline-flex;margin:8px 0;text-decoration:none}
+
 /* ---------- 長押しで並べ替え ---------- */
 [data-rolist]>[data-roid]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;position:relative;background:var(--surface)}
 .group.ro-on{overflow:visible}
@@ -588,7 +608,7 @@ details.alt summary{min-height:44px;display:flex;align-items:center;color:var(--
    保存先は本番と別のキー。バックアップファイルは相互に読み書きできる。
    デザイン：Apple HIG（構造・操作）＋デジタル庁デザインシステム（色・文字・部品）。アイコンは Lucide（ISC License）をインライン化。 */
 const KEY='izakaya-reji-akari-v1';
-/* 端末連携（試作）の状態。role：off／host（データを持つ親機）／sub（ホストにつなぐ子機） */
+/* 端末連携（Wi-Fi）の状態。role：off／host（データを持つ親機）／sub（ホストにつなぐ子機） */
 const SYNCK=KEY+'-sync';
 const SY={role:'off',name:'',peers:[],host:null,ok:false,got:false,base:{},seq:0,wake:null,pending:null};
 try{const o=JSON.parse(localStorage.getItem(SYNCK))||{};if(['host','sub'].includes(o.role))SY.role=o.role;SY.name=String(o.name||'');}catch(e){}
@@ -654,6 +674,8 @@ const IC={
   check:'<path d="M20 6 9 17l-5-5"/>',
   msg:'<path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>',
   bksp:'<path d="M10 5a2 2 0 0 0-1.344.519l-6.328 5.74a1 1 0 0 0 0 1.481l6.328 5.741A2 2 0 0 0 10 19h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/><path d="m12 9 6 6"/><path d="m18 9-6 6"/>',
+  cloud:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',
+  cloudoff:'<path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"/>',
 };
 const ic=(n,s=20,cls='')=>`<svg class="ic ${cls}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
 
@@ -730,6 +752,7 @@ function save(){
   if(SY.role==='sub'){syncPush();return;}
   try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
   if(SY.role==='host')syncBroadcast();
+  if(typeof CL!=='undefined'&&CL.on)cloudTrack();
 }
 
 let view={name:'tables'};
@@ -843,7 +866,7 @@ function tablesView(enter){
   const busy=S.tables.filter(t=>t.open);
   const unpaid=busy.reduce((a,t)=>a+billT(t).total,0);
   const guests=busy.reduce((a,t)=>a+(t.guests||0),0);
-  return `${doneBanner()}<div class="sec" style="padding-block:0">
+  return `${doneBanner()}${CL.on?`<div class="cwarn-w">${cloudWarn()}</div>`:''}<div class="sec" style="padding-block:0">
   <div class="summary"><div><small>使用中</small><b class="num">${busy.length} / ${S.tables.length}</b></div><div><small>客数</small><b class="num">${guests}名</b></div><div><small>未会計</small><b class="num" data-roll="${unpaid}" data-rid="unpaid">${yen(unpaid)}</b></div></div>
   <div class="tgrid ${enter?'stagger':''}">${S.tables.map((t,i)=>`<button class="tcard ${t.open?'busy':''}" style="--i:${i}" data-a="table" data-id="${t.id}" aria-label="${esc(t.name)}、${t.open?'使用中':'空席'}">
     <span class="tname">${esc(t.name)}</span>
@@ -989,7 +1012,7 @@ function calcGuide(){
       <div class="bd">${bdRows(b,fake,false).join('')}</div>
       <div class="exsum"><span>合計</span><span><b class="num">${yen(b.total)}</b> <small class="muted num">（内消費税 ${yen(b.tax)}）</small></span></div></div>`;
 }
-const SUBS={serve:'提供チェック',pin:'暗証番号',shop:'店舗情報',tax:'消費税',disc:'割引',svc:'サービス料',pay:'支払い方法',items:'品目',cats:'カテゴリ',tables:'テーブル',backup:'バックアップ',reset:'リセット',sync:'端末連携（試作）'};
+const SUBS={cloud:'端末連携（クラウド）',serve:'提供チェック',pin:'暗証番号',shop:'店舗情報',tax:'消費税',disc:'割引',svc:'サービス料',pay:'支払い方法',items:'品目',cats:'カテゴリ',tables:'テーブル',backup:'バックアップ',reset:'リセット',sync:'端末連携（Wi-Fi）'};
 function settingsView(sub){
   const tx=S.tax;
   const cur=isTab?(view.sub||'shop'):null;
@@ -1023,7 +1046,8 @@ function settingsView(sub){
     </div>
     <h2 class="gh">ほかの端末</h2>
     <div class="group">
-      ${srow('link','端末連携（試作）',SY.role==='host'?`ホスト・${SY.peers.filter(p=>p.ok).length}台接続`:'オフ','sync')}
+      ${srow('link','端末連携（Wi-Fi）',SY.role==='host'?`ホスト・${SY.peers.filter(p=>p.ok).length}台接続`:'オフ','sync')}
+      ${srow(CL.on&&!(CL.ok&&CL.synced)?'cloudoff':'cloud','端末連携（クラウド）',CL.on?(CL.ok&&CL.synced?`接続中・${CL.peers.length}台`:'オフライン'):'オフ','cloud')}
     </div>
     <h2 class="gh">データ</h2>
     <div class="group">
@@ -1126,6 +1150,7 @@ function settingsView(sub){
     <div class="btnrow"><button class="btn btn-line" data-a="rsample" data-v="rcpt">${ic('receipt',20)}レシート</button><button class="btn btn-line" data-a="rsample" data-v="ryo">${ic('file',20)}領収書</button></div>
   </div>`;
   if(sub==='sync') return syncView();
+  if(sub==='cloud') return cloudView();
   if(sub==='serve') return `<div class="sec">
     <div class="group"><label class="ck"><input type="checkbox" data-opt="serve" ${S.opt.serve?'checked':''}><span>提供チェックを使う<small>下に「提供」タブが出て、まだ出していない注文の一覧と、今日提供した記録を見られます</small></span></label></div>
     <p class="note">注文が入ると「提供」タブに並びます。料理や飲み物を出したら「提供」を押します。伝票にも「提供済み」と表示します。</p>
@@ -2053,7 +2078,7 @@ const RO=(()=>{
   return {busy:()=>!!(st&&st.on)};
 })();
 
-/* ---------- 端末連携（試作） ----------
+/* ---------- 端末連携（Wi-Fi） ----------
    同じ Wi-Fi の端末どうしを WebRTC で直接つなぐ。仲介サーバーは使わず、接続の情報は QR コードを2回読んで交換する。
    データを持つのはホストだけ。サブは操作（テーブル・会計の変化）をホストへ送り、ホストは最新の状態を全サブへ配る。
    外部の STUN/TURN サーバーは指定しないので、通信は同じネットワークの中だけで成り立つ。 */
@@ -2084,6 +2109,7 @@ window.addEventListener('unhandledrejection',e=>{if(SY.role!=='off'||syLog.lengt
 function saveSync(){try{localStorage.setItem(SYNCK,JSON.stringify({role:SY.role,name:SY.name}))}catch(e){}}
 const synName=()=>SY.name||(isTab?'iPad':'iPhone');
 function synChip(){
+  if(CL.on){const on=CL.ok&&CL.synced,n=on?0:clPendingCount(),t=on?'クラウド':'オフライン'+(n?` ${n}件待ち`:'');return `<span class="synchip ${on?'':'off'}" role="img" aria-label="端末連携（クラウド）：${t}">${ic(on?'cloud':'cloudoff',16)}<span class="t">${t}</span></span>`;}
   if(SY.role==='sub'){const t=SY.ok?'サブ':'切断中';return `<span class="synchip ${SY.ok?'':'off'}" role="img" aria-label="${t}">${ic(SY.ok?'link':'wifioff',16)}<span class="t">${t}</span></span>`;}
   if(SY.role==='host'){const n=SY.peers.filter(p=>p.ok).length;return n?`<span class="synchip" role="img" aria-label="連携 ${n}台">${ic('link',16)}<span class="t">連携 ${n}台</span></span>`:'';}
   return '';
@@ -2197,6 +2223,7 @@ const unpackErr=e=>e&&e.message==='old'?'この端末のブラウザが古いた
 /* --- ホスト（親機） --- */
 async function hostAdd(){
   if(SY.role==='sub'){toast('サブとして使っている間はホストにできません');return;}
+  if(CL.on){toast('端末連携（クラウド）を使っている間は使えません');return;}
   syncDropPending();
   slog('ホスト: サブ端末を追加');
   loadingSheet('サブ端末を追加','接続用のQRコードを用意しています…');
@@ -2234,7 +2261,7 @@ async function hostAdd(){
   slog(`ホスト: QRを表示（${code.length}文字）`);
   SY.pending=p;
   $('mbox').innerHTML=`${sheetHead('サブ端末を追加')}<div class="mb">
-    <ol class="steps"><li>サブ端末で「設定 › 端末連携 › ホストにつなぐ」を押し、このQRを読み取ります。</li><li>サブ端末に出たQRを、下のボタンから読み取ります。</li></ol>
+    <ol class="steps"><li>サブ端末で「設定 › 端末連携（Wi-Fi）› ホストにつなぐ」を押し、このQRを読み取ります。</li><li>サブ端末に出たQRを、下のボタンから読み取ります。</li></ol>
     <div class="qrwrap"><div class="qrbox">${qrSvg(code)}</div></div>${codeAlt(code)}</div>
     <div class="mbtns"><button class="btn btn-line" data-a="mclose">キャンセル</button><button class="btn btn-fill" data-a="syscan2">${ic('scan',20)}サブのQRを読み取る</button></div>`;
 }
@@ -2282,8 +2309,9 @@ function syncBroadcast(){
 
 /* --- サブ（子機） --- */
 function subJoin(){
+  if(CL.on){toast('端末連携（クラウド）を使っている間は使えません');return;}
   if(SY.role==='host'&&SY.peers.some(p=>p.ok)){toast('ホストとして使っている間はサブにできません');return;}
-  openScan('ホストのQRを読み取る','ホストの端末で「設定 › 端末連携 › サブ端末を追加」を押し、出てきたQRを写してください。',async txt=>{
+  openScan('ホストのQRを読み取る','ホストの端末で「設定 › 端末連携（Wi-Fi）› サブ端末を追加」を押し、出てきたQRを写してください。',async txt=>{
     let u=null; try{u=await unpackSdp(txt)}catch(e){syncErr('読み取れませんでした',unpackErr(e));return;}
     if(!u||u.kind!=='o'){slog('サブ: ホストのQRではない');syncErr('読み取れませんでした',u?'これはサブ側のQRです。ホストの端末に出たQRを読み取ってください。':unpackErr());return;}
     slog('サブ: ホスト '+candInfo(u.sdp));
@@ -2369,7 +2397,7 @@ function syncUi(){
   const connecting=SY.ok&&!SY.got;
   const html=`<div class="card"><span class="wic">${ic(connecting?'link':'wifioff',40)}</span>
     <h2 id="syovh">${connecting?'ホストからデータを受け取っています':'ホストとつながっていません'}</h2>
-    <p>${connecting?'少しお待ちください。':'ホストの端末で「設定 › 端末連携 › サブ端末を追加」を押してQRを出し、下のボタンから読み取ってください。'}</p>
+    <p>${connecting?'少しお待ちください。':'ホストの端末で「設定 › 端末連携（Wi-Fi）› サブ端末を追加」を押してQRを出し、下のボタンから読み取ってください。'}</p>
     ${connecting?'':`<button class="btn btn-fill" data-a="syjoin">${ic('scan',20)}ホストにつなぐ</button><button class="btn btn-text" data-a="syleave">連携をやめる</button>`}</div>`;
   if(ov.dataset.h!==html){ov.innerHTML=html;ov.dataset.h=html;}
   ov.classList.add('show');
@@ -2421,6 +2449,258 @@ async function wakeOn(){
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){wakeOn();syncCheck();}});
 
+/* ---------- 端末連携（クラウド） ----------
+   お店ごとに用意した Cloudflare の置き場所（Worker＋Durable Object）に、全端末が WebSocket でつなぐ。
+   置き場所が「帳場係」としてデータを持ち、操作を1件ずつ順番に処理して全端末へ配る。
+   - 端末は変わったもの（テーブル・会計・設定）だけを送る。送る前に電波が切れても、送信待ちとして覚えておき、つながったら送る。
+   - 届いた状態を反映するとき、まだ送っていない手元の変更は残す（あとで送る）。
+   - 端末にも同じデータを保存するので、つながらない間もこの端末だけで使い続けられる。
+   - 店舗キー（ランダムな32文字）を知っている端末だけが同じお店のデータに入れる。 */
+const CLK=KEY+'-cloud';
+const CL_DEPLOY='https://deploy.workers.cloudflare.com/?url=https://github.com/kusakawad/izakaya-reji-v2/tree/main/cloud';
+const emptyDirty=()=>({t:[],s:[],del:[],core:false,reset:false});
+const CL={on:false,url:'',key:'',dev:'',seq:0,dirty:emptyDirty(),
+  ws:null,ok:false,synced:false,need:0,inflight:null,base:null,usage:null,peers:[],retry:0,timer:null,rx:0,err:'',mode:null,first:null};
+try{const o=JSON.parse(localStorage.getItem(CLK))||{};
+  CL.on=!!o.on;CL.url=String(o.url||'');CL.key=String(o.key||'');CL.dev=String(o.dev||'');CL.seq=+o.seq||0;CL.usage=o.usage||null;
+  if(o.dirty)CL.dirty=Object.assign(emptyDirty(),o.dirty);}catch(e){}
+if(!CL.dev)CL.dev=uid()+uid();
+CL.srv={}; try{CL.srv=JSON.parse(localStorage.getItem(CLK+'-srv'))||{};}catch(e){}
+const clKeyNew=()=>{const a=new Uint8Array(24);crypto.getRandomValues(a);return b64u(a);};
+/* 送信待ち：未送信の変更と、送ったが返事のまだ来ない変更を合わせたもの */
+function clPending(){
+  const d=JSON.parse(JSON.stringify(CL.dirty)), f=CL.inflight&&CL.inflight.d;
+  if(f){f.t.forEach(x=>{if(!d.t.includes(x))d.t.push(x);});f.s.forEach(x=>{if(!d.s.includes(x))d.s.push(x);});f.del.forEach(x=>{if(!d.del.includes(x))d.del.push(x);});d.core=d.core||f.core;d.reset=d.reset||f.reset;}
+  return d;
+}
+const clPendingCount=()=>{const d=clPending();return d.t.length+d.s.length+d.del.length+(d.core?1:0)+(d.reset?1:0);};
+function saveCloud(){try{localStorage.setItem(CLK,JSON.stringify({on:CL.on,url:CL.url,key:CL.key,dev:CL.dev,seq:CL.seq,dirty:clPending(),usage:CL.usage}))}catch(e){}}
+const coreOf=D=>{const {tables,sales,...c}=D;return {...c,tableOrder:(tables||[]).map(t=>t.id)};};
+function clSnap(){const b={core:JSON.stringify(coreOf(S)),t:{},s:{}};S.tables.forEach(t=>b.t[t.id]=JSON.stringify(t));S.sales.forEach(x=>b.s[x.id]=JSON.stringify(x));return b;}
+/* save() のたびに、前回から変わったものを送信待ちに入れる */
+function cloudTrack(){
+  if(!CL.base){CL.base=clSnap();return;}
+  const b=CL.base, d=CL.dirty, add=(a,id)=>{if(!a.includes(id))a.push(id);};
+  if(JSON.stringify(coreOf(S))!==b.core)d.core=true;
+  const ids=new Set();
+  S.tables.forEach(t=>{ids.add(t.id);if(JSON.stringify(t)!==b.t[t.id]){add(d.t,t.id);d.del=d.del.filter(x=>x!==t.id);}});
+  Object.keys(b.t).forEach(id=>{if(!ids.has(id)){add(d.del,id);d.t=d.t.filter(x=>x!==id);}});
+  const sids=new Set(S.sales.map(x=>x.id));
+  /* 会計が消えた（売上のリセットやバックアップの復元）：クラウドの会計を一度消して、今ある会計を送り直す */
+  if(Object.keys(b.s).some(id=>!sids.has(id))){d.reset=true;d.s=S.sales.map(x=>x.id);}
+  else S.sales.forEach(x=>{if(JSON.stringify(x)!==b.s[x.id])add(d.s,x.id);});
+  CL.base=clSnap(); saveCloud(); cloudFlush();
+}
+function cloudSend(o){try{if(CL.ws&&CL.ws.readyState===1){CL.ws.send(typeof o==='string'?o:JSON.stringify(o));return true;}}catch(e){}return false;}
+function cloudFlush(){
+  if(!CL.ok||!CL.synced||CL.inflight)return;
+  const d=CL.dirty; if(!d.core&&!d.t.length&&!d.s.length&&!d.del.length&&!d.reset)return;
+  const m={t:'ops',seq:++CL.seq};
+  if(d.core)m.core=coreOf(S);
+  m.tables=d.t.map(id=>S.tables.find(t=>t.id===id)).filter(Boolean);
+  m.tdel=d.del.slice(); if(d.reset)m.reset=true;
+  m.sales=d.s.map(id=>S.sales.find(x=>x.id===id)).filter(Boolean);
+  /* 元にした版（最後に置き場所から受け取った版）も付ける。ほかの端末と同時に変えたとき、置き場所で行ごとにまとめるため */
+  m.tbase={}; m.tables.forEach(t=>{const b=CL.srv[t.id];if(b)m.tbase[t.id]=JSON.parse(b);});
+  CL.inflight={seq:m.seq,d:JSON.parse(JSON.stringify(d))}; CL.dirty=emptyDirty(); CL.need=m.seq;
+  saveCloud();
+  if(!cloudSend(m)){CL.dirty=clPending();CL.inflight=null;CL.need=0;}
+}
+/* 置き場所から届いた状態を反映する。まだ送っていない手元の変更は上書きしない */
+function cloudApply(D){
+  const d=clPending();
+  /* 元にした版：まだ送っていないテーブルは、手元で変え始めたときの版のままにする（あとで置き場所が行ごとにまとめられるように） */
+  const prev=CL.srv||{}; CL.srv={}; (D.tables||[]).forEach(t=>{CL.srv[t.id]=d.t.includes(t.id)&&prev[t.id]?prev[t.id]:JSON.stringify(t);});
+  try{localStorage.setItem(CLK+'-srv',JSON.stringify(CL.srv))}catch(e){}
+  if(d.core){const c=coreOf(S);delete c.tableOrder;Object.assign(D,c);}
+  let tables=D.tables||[];
+  tables=tables.filter(t=>!d.del.includes(t.id));
+  d.t.forEach(id=>{const loc=S.tables.find(t=>t.id===id);if(!loc)return;const i=tables.findIndex(t=>t.id===id);if(i>=0)tables[i]=loc;else tables.push(loc);});
+  if(d.core){const ord=S.tables.map(t=>t.id);tables.sort((a,b)=>{const x=ord.indexOf(a.id),y=ord.indexOf(b.id);return (x<0?1e9:x)-(y<0?1e9:y);});}
+  D.tables=tables;
+  let sales=d.reset?[]:(D.sales||[]);
+  d.s.forEach(id=>{const loc=S.sales.find(x=>x.id===id);if(!loc)return;const i=sales.findIndex(x=>x.id===id);if(i>=0){if(loc.voided&&!sales[i].voided)sales[i]=loc;}else sales.push(loc);});
+  D.sales=sales;
+  S=normalize(D); CL.base=clSnap();
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+}
+function cloudMsg(m){
+  if(m.usage){CL.usage=m.usage;}
+  if(Array.isArray(m.peers))CL.peers=m.peers;
+  if(m.t==='error'){slog('クラウド: エラー '+(m.message||''));return;}
+  if(m.t!=='state')return;
+  /* 1台目・2台目の最初の受け取り */
+  if(CL.first){
+    const mode=CL.first; CL.first=null;
+    if(m.empty){
+      if(mode==='join'){cloudOff(false);syncErr('つなげませんでした','この店舗キーのお店には、まだデータがありません。1台目の端末で「この端末のデータで始める」を先に行ってください。');return;}
+      cloudSend({t:'init',seq:CL.seq,d:S}); slog('クラウド: この端末のデータで始めた'); return;
+    }
+    if(mode==='start'){
+      CL.firstState=m;
+      showModal(`<h2 class="dlg-h" id="mtitle">${ic('alert',24)}クラウドにデータがあります</h2><div class="mb"><div class="msg">この置き場所には、すでにお店のデータがあります（テーブル${(m.d.tables||[]).length}卓・会計${(m.d.sales||[]).length}件）。<br>クラウドのデータを使うと、この端末のデータはクラウドのデータに置き換わります（元のデータはこの端末に控えを残します）。</div></div>
+        <div class="mbtns"><button class="btn btn-line" data-a="clfirstno">やめる</button><button class="btn btn-fill" data-a="clfirstuse">クラウドのデータを使う</button></div>`,'dialog');
+      return;
+    }
+    clKeepLocal(); CL.dirty=emptyDirty(); CL.inflight=null;
+  }
+  if(m.empty){CL.synced=false;return;}
+  if((+m.ack||0)<CL.need){syncRender();return;}
+  if(CL.inflight&&(+m.ack||0)>=CL.inflight.seq){CL.inflight=null;CL.need=0;}
+  const first=!CL.synced;
+  cloudApply(m.d); CL.synced=true; saveCloud();
+  if(first){slog('クラウド: データを受け取った');if(CL.mode){toast('端末連携（クラウド）を始めました');CL.mode=null;if(modalOpen()&&$('sywait'))closeModal();}}
+  cloudFlush(); syncRender();
+}
+/* 連携を始める前のこの端末のデータを、1回だけ控えとして残す */
+function clKeepLocal(){try{if(!localStorage.getItem(KEY+'-precloud'))localStorage.setItem(KEY+'-precloud',localStorage.getItem(KEY)||'');}catch(e){}}
+const clWsUrl=()=>CL.url.replace(/\/+$/,'').replace(/^http/,'ws')+'/ws?key='+encodeURIComponent(CL.key)+'&dev='+encodeURIComponent(CL.dev);
+function cloudConnect(){
+  clearTimeout(CL.timer);
+  if(!CL.on||!CL.url||!CL.key)return;
+  if(CL.ws&&CL.ws.readyState<2)return;
+  let ws;
+  try{ws=new WebSocket(clWsUrl());}catch(e){CL.err='接続できませんでした（'+errText(e)+'）';slog('クラウド: '+CL.err);clRetry();syncRender();return;}
+  CL.ws=ws;
+  ws.onopen=()=>{if(CL.ws!==ws)return;CL.ok=true;CL.synced=false;CL.retry=0;CL.err='';CL.rx=Date.now();slog('クラウド: つながった');
+    cloudSend({t:'hello',dev:CL.dev,name:synName(),tz:-new Date().getTimezoneOffset()});wakeOn();syncRender();};
+  ws.onmessage=e=>{if(CL.ws!==ws)return;CL.rx=Date.now();if(e.data==='pong')return;let m;try{m=JSON.parse(e.data)}catch(_){return}cloudMsg(m);};
+  ws.onerror=()=>{if(CL.ws!==ws)return;CL.err='置き場所に接続できません';};
+  ws.onclose=ev=>{if(CL.ws!==ws)return;const was=CL.ok;CL.ws=null;CL.ok=false;CL.synced=false;
+    CL.dirty=clPending();CL.inflight=null;CL.need=0;saveCloud();
+    slog(`クラウド: 切れた（${ev.code}）`);
+    if(CL.first){CL.first=null;if(modalOpen()&&$('sywait'))syncErr('つなげませんでした','置き場所に接続できませんでした。URL が正しいか、「接続テスト」で確かめてください。テスト版のページ（claude.ai 上）からはつなげません。');}
+    if(was)toast('クラウドとの接続が切れました。この端末だけで続けられます');
+    clRetry(); syncRender();};
+}
+function clRetry(){clearTimeout(CL.timer);if(!CL.on)return;const w=[2,5,10,20,30][Math.min(CL.retry,4)]*1000;CL.retry++;CL.timer=setTimeout(cloudConnect,w);}
+function cloudOff(erase){
+  if(erase)cloudSend({t:'erase'});
+  const ws=CL.ws; CL.on=false; CL.ws=null; CL.ok=false; CL.synced=false; CL.first=null; CL.inflight=null; CL.need=0; CL.dirty=emptyDirty(); CL.peers=[];
+  clearTimeout(CL.timer); setTimeout(()=>{try{ws&&ws.close(1000,'off')}catch(e){}},erase?400:0);
+  saveCloud();
+}
+/* 1台目：この端末のデータで始める／2台目以降：参加コード（QR）でつなぐ */
+async function cloudStart(url){
+  if(SY.role!=='off'){toast('端末連携（Wi-Fi）を使っている間は始められません');return;}
+  CL.key=CL.key&&CL.url===url?CL.key:clKeyNew(); CL.url=url; CL.on=true; CL.seq=0; CL.dirty=emptyDirty(); CL.inflight=null; CL.need=0; CL.base=clSnap();
+  CL.first='start'; CL.mode='start'; CL.retry=0; saveCloud();
+  loadingSheet('端末連携（クラウド）','置き場所につないでいます…'); cloudConnect();
+}
+function cloudJoin(code){
+  const c=clParse(code); if(!c){syncErr('読み取れませんでした','端末連携（クラウド）の参加用のQRではないようです。1台目の端末の「ほかの端末を追加」に出るQRを読み取ってください。');return;}
+  if(SY.role!=='off'){toast('端末連携（Wi-Fi）を使っている間は始められません');return;}
+  if(CL.ws){try{CL.ws.close()}catch(e){}CL.ws=null;}
+  CL.url=c.u; CL.key=c.k; CL.on=true; CL.seq=0; CL.dirty=emptyDirty(); CL.inflight=null; CL.need=0; CL.base=clSnap();
+  CL.first='join'; CL.mode='join'; CL.retry=0; saveCloud();
+  loadingSheet('端末連携（クラウド）','置き場所につないでいます…'); cloudConnect();
+}
+/* 参加用のコード：AKRC＋{u:URL,k:店舗キー} を base64url にしたもの（QR 読み取りは AKR で始まるものを拾う） */
+const clCode=()=>'AKRC'+b64u(new TextEncoder().encode(JSON.stringify({u:CL.url,k:CL.key})));
+function clParse(t){const m=/^AKRC([A-Za-z0-9_-]+)$/.exec(String(t||'').trim());if(!m)return null;
+  try{const o=JSON.parse(new TextDecoder().decode(unb64u(m[1])));return o&&/^https:\/\/|^http:\/\/(127\.0\.0\.1|localhost)/.test(o.u)&&/^[A-Za-z0-9_-]{20,64}$/.test(o.k)?o:null;}catch(e){return null;}}
+function clNormUrl(v){v=String(v||'').trim().replace(/\/+$/,'');if(!v)return '';if(!/^https?:\/\//.test(v))v='https://'+v;
+  try{const u=new URL(v);if(u.protocol!=='https:'&&!/^(127\.0\.0\.1|localhost)$/.test(u.hostname))return '';return u.origin;}catch(e){return '';}}
+async function cloudTest(url){
+  try{const r=await fetch(url+'/',{cache:'no-store'});const j=await r.json();return j&&j.app==='akari-cloud'?{ok:true,v:j.version}:{ok:false,m:'あかりの置き場所ではないようです'};}
+  catch(e){return {ok:false,m:'つながりませんでした。URL が正しいか、設置が終わっているか確かめてください。テスト版のページ（claude.ai 上）からは確かめられません。'};}
+}
+/* 使用量：保存量は上限1GBに対する割合、1日の枠はリクエストと書き込みの多い方 */
+function clUse(){const u=CL.usage;if(!u)return null;
+  const today=new Date().toISOString().slice(0,10), day=u.day===today?Math.max(u.req/u.reqMax,u.rw/u.rwMax):0;
+  return {db:u.db/u.dbMax,day,u};}
+const pctTxt=x=>(x*100<1&&x>0?'1%未満':Math.round(x*100)+'%');
+/* テーブル画面の上に出す警告（保存量90%以上、今日の使用量80%以上） */
+function cloudWarn(){
+  if(!CL.on)return '';const k=clUse();if(!k)return '';
+  const out=[];
+  if(k.db>=.9)out.push(`<div class="cwarn danger" role="alert">${ic('alert',22)}<div class="grow"><b>クラウドの保存量が上限に近づいています（${pctTxt(k.db)}）</b><p>売上をCSVに保存してから「売上履歴をリセット」すると空きが増えます。</p><button class="btn btn-line btn-sm" data-a="clclean">${ic('rotate',18)}売上を整理する</button></div></div>`);
+  if(k.day>=.8)out.push(`<div class="cwarn" role="status">${ic('info',22)}<div class="grow"><b>今日のクラウドの使用量が多くなっています（${pctTxt(k.day)}）</b><p>上限に達すると、朝9時までこの端末だけで動き、たまった分はあとで送ります。</p></div></div>`);
+  return out.join('');
+}
+function meter(label,x,detail){const p=Math.min(1,Math.max(0,x||0));return `<div class="meter ${p>=.9?'hi':p>=.7?'mid':''}"><div class="mtop"><span>${label}</span><b class="num">${pctTxt(p)}</b></div><div class="mbar" role="progressbar" aria-label="${label}" aria-valuenow="${Math.round(p*100)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${(p*100).toFixed(1)}%"></i></div><small class="muted num">${detail}</small></div>`;}
+const mb=n=>n>=1e9?(n/1e9).toFixed(2)+'GB':n>=1e6?(n/1e6).toFixed(1)+'MB':Math.max(1,Math.round(n/1e3))+'KB';
+const CL_PROMPT=`あなたは私のパソコンで作業できるAIです。居酒屋レジ「あかり」の「端末連携（クラウド）」で使う置き場所（Cloudflare Workers と Durable Objects）を、私の Cloudflare アカウントに設置してください。
+
+手順：
+1. Node.js 18 以上と git が入っているか確かめてください。なければ入れ方を案内してください。
+2. 次のコマンドでプログラムを取得し、cloud フォルダに移動してください。
+   git clone --depth 1 https://github.com/kusakawad/izakaya-reji-v2
+   cd izakaya-reji-v2/cloud
+3. npm install を実行してください。
+4. npx wrangler login を実行してください。ブラウザが開いたら、私が自分で Cloudflare にログインして「許可」を押します。パスワードを私に聞いたり、代わりに入力したりしないでください。
+5. npx wrangler deploy を実行してください。wrangler.jsonc の設定（Durable Object「AkariShop」、SQLite）は変更しないでください。
+6. 表示された https://〜.workers.dev の URL を私に教えてください。その URL をブラウザで開くと {"app":"akari-cloud","ok":true,...} と表示されることも確かめてください。
+
+注意：
+- 無料プラン（Workers Free）のままで動きます。有料プランへの切り替えや、支払い情報の入力はしないでください。
+- エラーが出たら、内容と対処法を日本語でわかりやすく説明してください。`;
+/* 設定 › 端末連携（クラウド） */
+function cloudView(){
+  const name=`<label class="fl">この端末の名前<input id="sy-name" value="${esc(SY.name)}" maxlength="16" placeholder="例：レジのiPad、厨房"></label>`;
+  const limits=`<h3>無料で使える量</h3>
+    <p class="note">Cloudflare の無料プランで使えます。お店1軒のレジなら、ふつうは上限に届きません。上限に近づくと、この画面とテーブル画面でお知らせします。</p>
+    <ul class="steps"><li>保存できる量：1GB（1会計を2KBとすると約50万件。毎日100会計でも十数年分）</li><li>1日の操作：10万回まで（端末からの20回の送信で1回と数えます）</li><li>1日の書き込み：10万行まで</li><li>上限を超えても料金はかかりません。その日の残りはこの端末だけで動き、日本時間の朝9時に枠が戻ると、たまった分を送ります。</li></ul>`;
+  if(!CL.on){
+    return `<div class="sec">
+    <p class="note">インターネットを通して、お店の端末どうしでデータを共有します。お店の Wi-Fi の外からでもつながり、親機の電源を気にする必要もありません。データは、お店ごとに用意する Cloudflare（クラウドフレア）の無料の置き場所に保存されます。</p>
+    <div class="example"><b>しくみ</b><p class="note">クラウドに「帳場係」が1人いて、お店の帳簿を持っています。全部の端末がそこへつなぎっぱなしにして、注文や会計を伝えます。帳場係は1件ずつ順番に帳簿へ書き込み、最新の帳簿を全部の端末に配ります。同時に注文しても消えません。電波が切れている間はその端末だけで動き、つながったときにまとめて伝えます。</p></div>
+    ${SY.role!=='off'?`<p class="note warn">${ic('alert',20)}<span>端末連携（Wi-Fi）を使っている間は使えません。先に端末連携（Wi-Fi）をやめてください。</span></p>`:''}
+    <h3>① 置き場所を用意する（お店で1回だけ）</h3>
+    <p class="note">お店の持ち主が、パソコンで行うのがおすすめです（スマホでもできます）。10分ほどかかります。</p>
+    <ol class="steps setup">
+      <li><b>Cloudflare のアカウントを作る（無料）</b><br><a href="https://dash.cloudflare.com/sign-up" target="_blank" rel="noopener">dash.cloudflare.com/sign-up</a> を開き、メールアドレスとパスワードを決めて登録します。届いたメールのリンクを押して確認を済ませます。</li>
+      <li><b>GitHub のアカウントを作る（無料）</b><br><a href="https://github.com/signup" target="_blank" rel="noopener">github.com/signup</a> で登録します。置き場所のプログラムの控えが、ここに自動で保存されます。</li>
+      <li><b>「Cloudflare に設置する」を押す</b><br><a class="btn btn-fill btn-sm deploybtn" href="${CL_DEPLOY}" target="_blank" rel="noopener">${ic('upload',18)}Cloudflare に設置する</a><br>開いたページで、まず Cloudflare に、次に GitHub にログインして連携を許可します。名前は「akari-cloud」のままにして、いちばん下の「作成してデプロイ（Create and deploy）」を押します。1〜3分で終わります。</li>
+      <li><b>URL をコピーする</b><br>終わると「https://akari-cloud.〇〇〇.workers.dev」のような URL が出ます。これをコピーします。見失ったときは、Cloudflare の画面の「Workers & Pages」→「akari-cloud」で確かめられます。</li>
+      <li><b>下の欄に貼り付けて「接続テスト」を押す</b><br>「つながりました」と出れば準備完了です。</li>
+    </ol>
+    <label class="fl">置き場所の URL<input id="cl-url" value="${esc(CL.url)}" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://akari-cloud.〇〇〇.workers.dev"></label>
+    <div class="btnrow"><button class="btn btn-line" data-a="cltest">${ic('link',20)}接続テスト</button></div>
+    <p class="note" id="cltestmsg" role="status"></p>
+    <h3>② この端末で始める（1台目）</h3>
+    <div class="btnrow"><button class="btn btn-fill" data-a="clstart" ${SY.role!=='off'?'disabled':''}>${ic('cloud',20)}この端末のデータで始める</button></div>
+    <p class="note">この端末に入っている品目・テーブル・売上が、クラウドの帳簿になります。始める前に、念のため「バックアップ」を保存しておくと安心です。</p>
+    <h3>③ ほかの端末をつなぐ（2台目から）</h3>
+    <p class="note">1台目の端末の「設定 › 端末連携（クラウド）› ほかの端末を追加」に出るQRを、この端末で読み取ります。</p>
+    <div class="btnrow"><button class="btn btn-line" data-a="cljoin" ${SY.role!=='off'?'disabled':''}>${ic('scan',20)}QRを読み取ってつなぐ</button></div>
+    <h3>AIに設置を代行してもらう</h3>
+    <p class="note">Claude Code など、パソコンを操作できるAIに下の文章を渡すと、①の設置をまかせられます。GitHub のアカウントは不要です。Cloudflare へのログインだけは、自分で行ってください。終わったら、AIが教えてくれる URL を①の欄に貼り付けます。</p>
+    <textarea class="codebox" id="clprompt" readonly style="min-height:220px">${esc(CL_PROMPT)}</textarea>
+    <div class="btnrow"><button class="btn btn-line btn-sm" data-a="clpcopy">${ic('copy',18)}文章をコピー</button></div>
+    ${limits}
+  </div>`;
+  }
+  const k=clUse(), pend=clPendingCount();
+  const st=CL.ok&&CL.synced?'接続中':CL.ok?'データを受け取っています':'つながっていません';
+  return `<div class="sec">
+    <div class="group"><div class="row"><span class="syncst grow"><span class="dot ${CL.ok&&CL.synced?'':'off'}"></span><span>${st}<small class="muted" style="display:block;word-break:break-all">${esc(CL.url.replace(/^https:\/\//,''))}</small></span></span>${CL.ok?'':`<button class="btn btn-line btn-sm" data-a="clretry">${ic('rotate',18)}つなぎ直す</button>`}</div>
+      ${pend?`<div class="row"><span class="grow">${ic('clock',18)} 送信待ち ${pend}件<small class="muted" style="display:block">つながると自動で送ります</small></span></div>`:''}</div>
+    ${CL.err&&!CL.ok?`<p class="note warn">${ic('alert',20)}<span>${esc(CL.err)}</span></p>`:''}
+    ${cloudWarn()}
+    <h3>つながっている端末</h3>
+    <div class="group">${CL.peers.length?CL.peers.map(p=>`<div class="row"><span class="syncst grow"><span class="dot"></span><span>${esc(p.name||'名前なし')}${p.dev===CL.dev?' <span class="muted">（この端末）</span>':''}</span></span></div>`).join(''):'<div class="row"><span class="grow muted">情報がありません</span></div>'}
+      <button class="addrow" data-a="cladd">${ic('qr',20)}ほかの端末を追加</button></div>
+    ${name}
+    <h3>使用量</h3>
+    ${k?`${meter('保存量',k.db,`${mb(k.u.db)} ／ 1GB`)}${meter('今日の使用量',k.day,`操作 ${k.u.req.toLocaleString('ja-JP')}回・書き込み ${k.u.rw.toLocaleString('ja-JP')}行（それぞれ1日10万まで・朝9時に戻ります）`)}
+      ${k.db>=.7&&k.db<.9?`<p class="note warn">${ic('alert',20)}<span>保存量が70%を超えました。売上をCSVに保存してから「売上履歴をリセット」すると空きが増えます。</span></p>`:''}`:'<p class="note">つながると表示されます。</p>'}
+    <p class="note">この端末の数え方による目安です。正確な量は Cloudflare の画面（Workers & Pages › akari-cloud）で確かめられます。</p>
+    <h3>連携をやめる</h3>
+    <div class="btnrow"><button class="btn btn-line" data-a="cloff">連携をやめる</button></div>
+    <p class="note">やめても、この端末には今のデータが残ります。クラウドのデータもそのまま残るので、ほかの端末は使い続けられます。</p>
+    ${limits}
+    <h3>接続の記録</h3>
+    <textarea class="codebox" id="sylog" readonly style="min-height:160px">${esc(syLog.join('\n'))}</textarea>
+    <div class="btnrow"><button class="btn btn-line btn-sm" data-a="sylogcopy">${ic('copy',18)}記録をコピー</button></div>
+  </div>`;
+}
+/* 生きているかの確認：25秒ごとに ping、60秒返事がなければつなぎ直す */
+setInterval(()=>{if(!CL.on||!CL.ws||CL.ws.readyState!==1)return;cloudSend('ping');if(Date.now()-CL.rx>60000){try{CL.ws.close()}catch(e){}}},25000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&CL.on&&!CL.ok){CL.retry=0;cloudConnect();}});
+window.addEventListener('online',()=>{if(CL.on&&!CL.ok){CL.retry=0;cloudConnect();}});
+if(CL.on){CL.base=clSnap();setTimeout(cloudConnect,0);}
+
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
   if(e.target===$('ov')){closeModal();return;}
@@ -2471,6 +2751,24 @@ document.addEventListener('click',e=>{
     case 'pinchg': openPin('check',{next:'set'}); return;
     case 'pindel': openPin('check',{next:'del'}); return;
     case 'pinlock': setUnlocked(false); view={name:'tables'}; toast('ロックしました'); break;
+    case 'cltest': {const url=clNormUrl(($('cl-url')||{}).value), m=$('cltestmsg'); if(!url){if(m)m.textContent='URL を入力してください（https:// から始まるもの）';return;}
+      if(m)m.textContent='確かめています…'; cloudTest(url).then(r=>{const el=$('cltestmsg');if(el)el.innerHTML=r.ok?`${ic('ccheck',18)} つながりました。②へ進んでください。`:`${ic('alert',18)} ${esc(r.m)}`;}); return;}
+    case 'clstart': {const url=clNormUrl(($('cl-url')||{}).value); if(!url){toast('先に置き場所の URL を入れてください');return;}
+      loadingSheet('端末連携（クラウド）','置き場所を確かめています…');
+      cloudTest(url).then(r=>{if(!r.ok){syncErr('つなげませんでした',esc(r.m));return;}cloudStart(url);}); return;}
+    case 'cljoin': openScan('1台目のQRを読み取る','1台目の端末で「設定 › 端末連携（クラウド）› ほかの端末を追加」を押し、出てきたQRを写してください。',txt=>cloudJoin(txt)); return;
+    case 'cladd': {const code=clCode();
+      showModal(`${sheetHead('ほかの端末を追加')}<div class="mb">
+        <ol class="steps"><li>追加する端末で「設定 › 端末連携（クラウド）› QRを読み取ってつなぐ」を押します。</li><li>このQRを読み取ってもらうと、自動でつながります。</li></ol>
+        <div class="qrwrap"><div class="qrbox">${qrSvg(code)}</div></div>
+        <p class="note warn">${ic('alert',20)}<span>このQRを読み取った端末は、お店のデータを見たり変えたりできます。お店の人以外には見せないでください。</span></p>${codeAlt(code)}</div>
+        <div class="mbtns"><button class="btn btn-fill" data-a="mclose">閉じる</button></div>`); return;}
+    case 'clretry': CL.retry=0; cloudConnect(); toast('つなぎ直しています'); return;
+    case 'cloff': confirmBox('端末連携（クラウド）をやめますか？<br>この端末には今のデータが残ります。クラウドのデータもそのまま残ります。',()=>{cloudOff(false);toast('端末連携（クラウド）をやめました');},'やめる'); return;
+    case 'clpcopy': copyText(CL_PROMPT).then(ok=>toast(ok?'コピーしました':'コピーできませんでした。文章を長押しして選んでください')); return;
+    case 'clclean': if(locked()){openPin('unlock',{cb:()=>{view={name:'settings',sub:'reset'};render();}});return;} view={name:'settings',sub:'reset'}; break;
+    case 'clfirstuse': {const st=CL.firstState;CL.firstState=null;closeModal();if(!st)return;clKeepLocal();CL.dirty=emptyDirty();CL.inflight=null;cloudApply(st.d);CL.synced=true;CL.mode=null;saveCloud();toast('クラウドのデータを使います');break;}
+    case 'clfirstno': CL.firstState=null; cloudOff(false); closeModal(); toast('取りやめました'); break;
     case 'csvd': saveCSV(`売上明細_${stamp()}.csv`,detailCSV()); return;
     case 'csvi': saveCSV(`品目別_${stamp()}.csv`,itemCSV()); return;
     case 'bexp': exportBackup(); setTimeout(render,300); return;
@@ -2525,7 +2823,7 @@ document.addEventListener('click',e=>{
     case 'rsample': openReceipt(sampleSale(),b.dataset.v); return;
     case 'logopick': {const f=$('logofile'); if(f){f.value='';f.click();} return;}
     case 'logodel': S.shop.logo=''; logoImg=null; save(); break;
-    case 'mclose': closeModal(); return;
+    case 'mclose': if(CL.first){cloudOff(false);slog('クラウド: 接続を取りやめた');} closeModal(); return;
     case 'cok': {const fn=confirmFn;confirmFn=null;closeModal();if(fn)fn();save();break;}
     case 'inew': openItem(null,b.dataset.c); return;
     case 'icopy': {const it=S.items.find(i=>i.id===editId); if(!it)return;

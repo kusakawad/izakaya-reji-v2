@@ -39,7 +39,14 @@ main に push した内容は数分で端末のアプリに反映されるので
   - 完了の知らせはダイアログでなくバナー。確認ダイアログは取り消せない操作だけに使う。
   - アイコンは Lucide をインラインの SVG で埋め込む（`IC` オブジェクト）。絵文字は使わない。
 - 並べ替え：設定の品目・テーブル・カテゴリは長押しで並べ替える（`[data-rolist]` の直下の `[data-roid]` 行、`RO`／`roApply()`）。並び順は配列の順そのもの。
-- 端末連携（試作）：設定 › 端末連携。WebRTC で同じ Wi-Fi の端末どうしを直接つなぐ。仲介サーバーなし、接続情報（SDP を deflate-raw＋base64url、接頭辞 `AKR`）は QR を2回読んで交換。STUN/TURN は指定しない。
+- 端末連携（クラウド）：設定 › 端末連携（クラウド）。置き場所のプログラムは `cloud/`（Worker＋Durable Object `AkariShop`、SQLite、無料プランで動く）。お店ごとに持ち主が自分の Cloudflare に設置する（Deploy to Cloudflare ボタン＝`main` の `cloud/` を参照、または AI 用の文章 `CL_PROMPT`）。
+  - 店舗キー（24バイトの乱数を base64url）ごとに Durable Object が1つ。参加コードは `AKRC`＋base64url(JSON{u,k})。
+  - 端末は WebSocket で `/ws?key=&dev=` につなぐ。`hello`→`state`（全データ・`ack`・`usage`・`peers`）。変更は `ops`（`core`＝テーブルと会計以外すべて＋`tableOrder`、`tables`＋`tbase`（元にした版）、`tdel`、`sales`、`reset`）。会計番号は置き場所が振る。
+  - 同じテーブルを同時に変えたら置き場所で行ごとにまとめる（`mergeTable()`）。会計と同時に入った注文はテーブルに残す。
+  - 端末側：`cloudTrack()` が `save()` のたびに差分を送信待ち（`CL.dirty`、localStorage `KEY+'-cloud'`）へ入れ、つながっていれば `cloudFlush()`。届いた状態は `cloudApply()` で反映し、まだ送っていない手元の変更は残す。`CL.srv`（`KEY+'-cloud-srv'`）が元にした版。つながらない間も端末だけで動く。
+  - 使用量の警告：保存量70%で設定画面、90%でテーブル画面のバナー（売上の整理へ）、今日の使用量80%でテーブル画面のバナー。
+  - Wi-Fi 連携とは同時に使えない。テスト版（Artifact）からは外部への通信ができないので本番の URL で試す。ローカルでは `cd cloud && npx wrangler dev` で試せる。
+- 端末連携（Wi-Fi）：設定 › 端末連携（Wi-Fi）（以前の名前は「端末連携（試作）」）。WebRTC で同じ Wi-Fi の端末どうしを直接つなぐ。仲介サーバーなし、接続情報（SDP を deflate-raw＋base64url、接頭辞 `AKR`）は QR を2回読んで交換。STUN/TURN は指定しない。
   - ホストだけがデータを持ち `save()` のたびに全サブへ配る。サブは `save()` で変わったテーブル・会計だけをホストへ送る（`localStorage` には書かない）。会計番号はホストが振り直す。
   - 設定はキー `izakaya-reji-akari-v1-sync`（role・端末名）。会計に `by`（サブ端末名）が付くことがある。
   - QR ライブラリは qrcode-generator（MIT）と jsQR（Apache-2.0）を index.html にインラインで埋め込み。
